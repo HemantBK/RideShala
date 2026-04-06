@@ -1,0 +1,79 @@
+DATA LICENSE — DUAL LICENSING
+==============================
+
+RideShala's community motorcycle database uses dual licensing
+to balance openness with developer-friendliness.
+
+────────────────────────────────────────────────────────────
+
+1. BULK DATABASE DOWNLOADS — CC BY-SA 4.0
+
+   Full database exports (available at rideshala.in/data/download)
+   are licensed under:
+
+   Creative Commons Attribution-ShareAlike 4.0 International
+   https://creativecommons.org/licenses/by-sa/4.0/
+
+   You are free to:
+   - Share: copy and redistribute in any medium or format
+   - Adapt: remix, transform, and build upon the material
+
+   Under the following terms:
+   - Attribution: credit "RideShala Community (rideshala.in)"
+   - ShareAlike: derivative works must use the same CC BY-SA 4.0 license
+
+   This keeps the open data commons alive — if you improve the
+   database, your improvements must also be open.
+
+────────────────────────────────────────────────────────────
+
+2. INDIVIDUAL API RESPONSES — CC BY 4.0
+
+   Data returned through the RideShala API (api.rideshala.in)
+   is licensed under:
+
+   Creative Commons Attribution 4.0 International
+   https://creativecommons.org/licenses/by/4.0/
+
+   You are free to:
+   - Share: copy and redistribute in any medium or format
+   - Adapt: remix, transform, and build upon the material
+   - Use commercially: including in proprietary applications
+
+   Under the following terms:
+   - Attribution: credit "Data from RideShala (rideshala.in)"
+
+   NO share-alike requirement — you CAN use API data in
+   proprietary applications. Just give us credit.
+
+────────────────────────────────────────────────────────────
+
+WHY DUAL LICENSING?
+
+CC BY-SA ensures that anyone who downloads and redistributes
+the full database keeps it open (like Wikipedia).
+
+CC BY (no SA) for API responses means developers can build
+proprietary apps on top of our API without being forced to
+open-source their entire application. This encourages
+ecosystem growth while still requiring attribution.
+
+────────────────────────────────────────────────────────────
+
+WHAT THIS COVERS
+
+- Motorcycle specifications (cc, bhp, torque, weight, etc.)
+- Community-contributed data and corrections
+- Aggregated statistics (average mileage, service costs)
+- AI-generated summaries and analyses
+
+WHAT THIS DOES NOT COVER
+
+- User reviews (owned by individual users, licensed separately)
+- User photos (owned by individual users)
+- RideShala source code (covered by MIT License, see LICENSE file)
+- Third-party API data (covered by their respective terms)
+
+────────────────────────────────────────────────────────────
+
+Last updated: April 2026

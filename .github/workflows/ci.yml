@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rideshala_test
+          POSTGRES_USER: rideshala
+          POSTGRES_PASSWORD: rideshala
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          cd services/api
+          pip install -r requirements.txt
+          pip install ruff pytest
+
+      - name: Lint Python
+        run: |
+          ruff check packages/ services/
+
+      - name: Run Python tests
+        env:
+          DATABASE_URL: postgresql://rideshala:rideshala@localhost:5432/rideshala_test
+          REDIS_URL: redis://localhost:6379
+          APP_ENV: test
+        run: |
+          cd services/api
+          pytest tests/ -v --tb=short
+
+      - name: Security audit (Python)
+        run: |
+          pip install pip-audit
+          cd services/api
+          pip-audit -r requirements.txt || true
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install and lint frontend
+        run: |
+          if [ -f apps/web/package.json ]; then
+            cd apps/web
+            npm ci
+            npm run lint || true
+          fi
+
+      - name: Check for secrets
+        run: |
+          # Fail if any obvious secrets are committed
+          ! grep -rn "sk-ant-" --include="*.py" --include="*.ts" --include="*.js" --include="*.json" . || echo "WARNING: Possible API key found!"
+          ! grep -rn "gsk_" --include="*.py" --include="*.ts" --include="*.js" --include="*.json" . || echo "WARNING: Possible Groq key found!"

@@ -1,0 +1,51 @@
+# RideShala API — Production Dockerfile
+# Multi-stage build for minimal image size
+
+FROM python:3.11-slim AS base
+
+# Prevent Python from writing .pyc files and enable unbuffered output
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# ─── Dependencies stage ────────────────────────────────
+FROM base AS dependencies
+
+# Copy dependency files
+COPY pyproject.toml /app/
+COPY services/api/requirements.txt /app/services/api/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /app/services/api/requirements.txt
+
+# ─── Application stage ─────────────────────────────────
+FROM dependencies AS app
+
+# Copy the full project (packages/ai is needed by services/api)
+COPY packages/ /app/packages/
+COPY services/api/ /app/services/api/
+
+# Add project root to PYTHONPATH so `from packages.ai...` works
+ENV PYTHONPATH=/app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/health/live || exit 1
+
+# Run with uvicorn
+EXPOSE 8080
+CMD ["uvicorn", "services.api.app.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8080", \
+     "--workers", "2", \
+     "--loop", "uvloop", \
+     "--http", "httptools"]
