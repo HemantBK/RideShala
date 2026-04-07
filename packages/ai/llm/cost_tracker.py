@@ -6,7 +6,7 @@ is tracked for transparency. No budget is enforced by default
 because the default setup costs nothing.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 # Cost per 1M tokens — vLLM and Groq free tier cost NOTHING
 # Claude costs are only relevant if user OPTIONALLY enables it
@@ -47,7 +47,7 @@ class CostTracker:
             "output_tokens": output_tokens,
             "feature": feature,
             "cost_usd": cost,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(datetime.UTC).isoformat(),
         }
 
         if self.db_pool:
@@ -64,7 +64,7 @@ class CostTracker:
 
     async def get_daily_summary(self) -> list[dict]:
         """Get today's usage summary for monitoring."""
-        today = datetime.now(timezone.utc).date()
+        today = datetime.now(datetime.UTC).date()
         return [
             r for r in self._memory_log
             if datetime.fromisoformat(r["timestamp"]).date() == today

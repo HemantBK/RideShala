@@ -4,10 +4,9 @@ All reviews are user-generated content with explicit consent.
 Every review goes through moderation before being available.
 """
 
+import bleach
 from fastapi import APIRouter
 from pydantic import BaseModel, Field, field_validator
-
-import bleach
 
 router = APIRouter()
 

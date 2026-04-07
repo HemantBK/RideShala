@@ -1,6 +1,6 @@
 """RideShala LangGraph state schema."""
 
-from typing import Annotated, Optional, TypedDict
+from typing import Annotated, TypedDict
 
 from langgraph.graph import add_messages
 
@@ -24,21 +24,21 @@ class RideShalaState(TypedDict):
     intent: str  # bike_search, compare, safety, tco, ride_plan, general_chat, clarify
 
     # User context
-    user_profile: Optional[UserProfile]
+    user_profile: UserProfile | None
     bikes_mentioned: list[str]
 
     # Retrieved data (populated by agent nodes)
-    specs_data: Optional[dict]
-    reviews_data: Optional[list]
-    mileage_data: Optional[dict]
-    service_data: Optional[dict]
+    specs_data: dict | None
+    reviews_data: list | None
+    mileage_data: dict | None
+    service_data: dict | None
 
     # Agent outputs
-    research_result: Optional[str]
-    comparison_result: Optional[str]
-    safety_result: Optional[str]
-    finance_result: Optional[str]
-    ride_plan_result: Optional[str]
+    research_result: str | None
+    comparison_result: str | None
+    safety_result: str | None
+    finance_result: str | None
+    ride_plan_result: str | None
 
     # Routing and metadata
     provider: str  # vllm, claude, groq

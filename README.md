@@ -13,41 +13,58 @@ Built with Mistral 7B | vLLM | LangGraph | FastAPI | Next.js | 100% Free & Open 
 
 ## What is RideShala?
 
-RideShala is a free, community-owned motorcycle advisor that understands **you** — your height, budget, commute, riding style — and recommends the perfect bike with full reasoning and source citations.
-
-**The problem:** Existing bike comparison apps (BikeWale, BikeDekho) dump specs in tables and leave you to decide alone.
-
-**Our solution:** An AI that actually reasons through your needs.
+RideShala is a free, open-source AI motorcycle advisor built for Indian riders. Instead of dropping you into a spec table and leaving you to figure things out, RideShala understands **you** — your height, budget, commute, city, and riding style — and tells you exactly which bike fits your life, and **why**.
 
 ```
 You:  "5'7, back pain, Bangalore commute 25km, weekend Coorg trips, budget 2.5L"
 
 RideShala: "I recommend the Meteor 350 because:
-          - 765mm seat = comfortable for 5'7 (feet flat on ground)
-          - Cruiser posture = less back strain than roadsters
-          - 15L tank = Bangalore to Coorg without refueling
-          - Rs 2.19L fits your budget with room for accessories
+           - 765mm seat = your feet flat on ground at 5'7
+           - Cruiser posture = less back strain than a roadster
+           - 15L tank = Bangalore to Coorg without refueling
+           - Rs 2.19L = Rs 31K under budget for accessories
 
-          Note: 20 bhp may feel slow on Shiradi Ghat inclines.
-          Alternative: Hero Mavrick 440 (27 bhp) at Rs 2.15L
+           But: 20 bhp may feel slow on Shiradi Ghat inclines.
+           Alternative: Hero Mavrick 440 (27 bhp) at Rs 2.15L
 
-          [Sources: Specs from royalenfield.com, comfort rating from
-           847 user reviews on RideShala]"
+           [Sources: royalenfield.com specs, 847 user reviews on RideShala]"
 ```
+
+Every claim has a source. Every recommendation has reasoning. If the AI doesn't have enough data, it says so.
 
 ---
 
-## Why RideShala?
+## What Makes RideShala Different
 
-| Feature | BikeWale / BikeDekho | RideShala |
-|---------|---------------------|---------|
-| Recommendations | Spec tables, decide yourself | AI reasons through YOUR needs |
-| Data source | Proprietary, scraped | 100% legal, community-owned |
-| Reviews | Platform-locked | Open data (CC BY-SA 4.0) |
-| Privacy | Tracks users, sells data | No tracking, DPDP Act compliant |
-| Code | Proprietary | MIT licensed, fully auditable |
-| Cost | Ad-supported | Free forever, no ads |
-| AI | None | Multi-agent system with citations |
+### It understands YOU, not just bikes
+Most tools show the same spec table to everyone. RideShala factors in your height (seat height matching), your city (pricing, dealer info, road conditions), your commute (fuel cost, comfort), your budget (total cost of ownership, not just sticker price), and your riding style. Two people asking about the same bike get different answers based on their situation.
+
+### Every answer comes with a reason and a source
+RideShala never says "this bike is good" without explaining why and linking where that data came from — whether it's the manufacturer's published specs, government RTO rates, or aggregated data from real owners on the platform. No black-box recommendations.
+
+### Real-world data from real owners
+Claimed mileage is a marketing number. RideShala tracks **actual mileage** from user-logged fill-ups, **actual service costs** from user-logged visits, and **actual ownership experiences** from verified reviews. The community builds the data together.
+
+### It warns you, not just sells to you
+RideShala has hardcoded safety rules the AI cannot override — it will always recommend dual-channel ABS, always suggest proper riding gear, and always flag known issues reported by owners. No hidden sponsorships. No brand deals. The AI works for the rider, not the manufacturer.
+
+### AI that thinks, not just filters
+Six specialized AI agents work together behind every answer:
+- **Research Agent** finds bikes matching your criteria
+- **Comparison Agent** reasons through real trade-offs between models
+- **Safety Agent** checks safety features and known issues
+- **Finance Agent** calculates 5-year ownership cost using government data
+- **Ride Plan Agent** plans routes with fuel stops and weather
+- **Guardrail** blocks unsafe or misleading responses
+
+### 100% open source, community-owned
+The code is MIT licensed. The bike database is CC BY-SA 4.0. Anyone can audit the recommendation logic, download the data, host their own instance, or contribute improvements. No corporation controls it. No ads fund it. The community owns it.
+
+### 100% legally clean data
+Every data point has a documented legal source — manufacturer-published specs (facts are not copyrightable), government data (RTO, insurance, fuel prices), free APIs, and original user contributions with explicit consent. Nothing scraped. Nothing grey-area.
+
+### 100% free to run
+Self-hosted Mistral 7B (Apache 2.0) on your own GPU. PostgreSQL, Qdrant, Redis, Meilisearch — all open source. OpenStreetMap for maps, Open-Meteo for weather. No paid API keys required. Zero monthly cost beyond your own hardware.
 
 ---
 

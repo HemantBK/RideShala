@@ -4,7 +4,6 @@ Uses Claude for high-stakes safety analysis.
 Hardcoded rules CANNOT be overridden by the LLM.
 """
 
-import json
 import logging
 
 from packages.ai.agents.state import RideShalaState

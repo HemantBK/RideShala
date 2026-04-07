@@ -72,7 +72,7 @@ class HybridRAG:
         # 3. Re-rank with cross-encoder
         pairs = [(query, doc["text"]) for doc in fused]
         scores = self.reranker.predict(pairs)
-        reranked = sorted(zip(fused, scores), key=lambda x: x[1], reverse=True)
+        reranked = sorted(zip(fused, scores, strict=False), key=lambda x: x[1], reverse=True)
 
         # 4. Return top-k with source citations
         return [
