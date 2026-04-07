@@ -50,10 +50,9 @@ jobs:
           DATABASE_URL: postgresql://rideshala:rideshala@localhost:5432/rideshala_test
           REDIS_URL: redis://localhost:6379
           APP_ENV: test
-          PYTHONPATH: services/api
         run: |
           cd services/api
-          pytest tests/ -v --tb=short
+          PYTHONPATH=. pytest tests/ -v --tb=short
 
       - name: Security audit (Python)
         run: |
@@ -76,6 +75,5 @@ jobs:
 
       - name: Check for secrets
         run: |
-          # Fail if any obvious secrets are committed
           ! grep -rn "sk-ant-" --include="*.py" --include="*.ts" --include="*.js" --include="*.json" . || echo "WARNING: Possible API key found!"
           ! grep -rn "gsk_" --include="*.py" --include="*.ts" --include="*.js" --include="*.json" . || echo "WARNING: Possible Groq key found!"
