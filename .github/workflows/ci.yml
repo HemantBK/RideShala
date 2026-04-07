@@ -69,6 +69,7 @@ jobs:
         run: |
           if [ -f apps/web/package.json ]; then
             cd apps/web
+            npm install --package-lock-only
             npm ci
             npm run lint || true
           fi
