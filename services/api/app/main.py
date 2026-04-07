@@ -10,7 +10,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Histogram, make_asgi_app
-
 from app.api.routes import chat, compare, health, reviews, specs
 
 logger = structlog.get_logger()
