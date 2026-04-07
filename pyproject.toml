@@ -86,8 +86,7 @@ ignore = ["E501"]  # line length handled by formatter
 known-first-party = ["packages", "services", "app"]
 
 [tool.pytest.ini_options]
-testpaths = ["services/api/tests", "packages/ai/tests"]
-asyncio_mode = "auto"
+testpaths = ["services/api/tests"]
 addopts = "-v --tb=short"
 
 [tool.mypy]

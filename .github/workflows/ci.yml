@@ -50,6 +50,7 @@ jobs:
           DATABASE_URL: postgresql://rideshala:rideshala@localhost:5432/rideshala_test
           REDIS_URL: redis://localhost:6379
           APP_ENV: test
+          PYTHONPATH: services/api
         run: |
           cd services/api
           pytest tests/ -v --tb=short
