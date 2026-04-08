@@ -24,10 +24,20 @@ export default function Home() {
   const [bikes, setBikes] = useState<Bike[]>([]);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/v1/specs?limit=9`)
-      .then((res) => res.json())
-      .then((data) => setBikes(data.bikes || []))
-      .catch(() => setBikes([]));
+    // Wake backend + load bikes on page load (handles free tier cold start)
+    async function loadBikes() {
+      try {
+        // Ping to wake the server first
+        await fetch(`${API_URL}/health/live`, { signal: AbortSignal.timeout(90000) });
+        // Then load bikes
+        const res = await fetch(`${API_URL}/api/v1/specs?limit=9`, { signal: AbortSignal.timeout(30000) });
+        const data = await res.json();
+        setBikes(data.bikes || []);
+      } catch {
+        setBikes([]);
+      }
+    }
+    loadBikes();
   }, []);
 
   async function handleSearch() {
@@ -36,10 +46,20 @@ export default function Home() {
     setResponse("");
 
     try {
+      // First ping to wake up the backend (free tier sleeps after inactivity)
+      setResponse("Waking up the AI server... (free tier takes ~30 seconds on first request)");
+      try {
+        await fetch(`${API_URL}/health/live`, { signal: AbortSignal.timeout(90000) });
+      } catch {
+        // Ignore — server might be slow but still starting
+      }
+      setResponse("");
+
       const res = await fetch(`${API_URL}/api/v1/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: query }),
+        signal: AbortSignal.timeout(120000),
       });
 
       const reader = res.body?.getReader();
