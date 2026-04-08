@@ -11,11 +11,14 @@ Requires DATABASE_URL environment variable or uses default.
 import asyncio
 import json
 import os
-import sys
 from pathlib import Path
 
-import asyncpg
+from dotenv import load_dotenv
 
+# Load .env from project root
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
+import asyncpg
 
 SEED_FILE = Path(__file__).parent / "bikes_india_top30.json"
 

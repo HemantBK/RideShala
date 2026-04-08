@@ -9,7 +9,7 @@ export default function Home() {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async () => {
+  async function handleSearch() {
     if (!query.trim()) return;
     setLoading(true);
     setResponse("");
@@ -25,57 +25,61 @@ export default function Home() {
       const decoder = new TextDecoder();
 
       if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        let done = false;
+        while (!done) {
+          const result = await reader.read();
+          done = result.done;
+          if (result.value) {
+            const chunk = decoder.decode(result.value);
+            const lines = chunk
+              .split("\n")
+              .filter((line) => line.startsWith("data: "));
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
-
-          for (const line of lines) {
-            try {
-              const data = JSON.parse(line.replace("data: ", ""));
-              if (data.type === "token") {
-                setResponse((prev) => prev + data.content);
+            for (const line of lines) {
+              try {
+                const data = JSON.parse(line.replace("data: ", ""));
+                if (data.type === "token") {
+                  setResponse((prev) => prev + data.content);
+                }
+              } catch {
+                /* skip malformed SSE lines */
               }
-            } catch {
-              // Skip malformed lines
             }
           }
         }
       }
-    } catch (error) {
-      setResponse("Could not connect to the API. Make sure the backend is running.");
+    } catch {
+      setResponse(
+        "Could not connect to the API. Make sure the backend is running."
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: "48px" }}>
-        <h1 style={{ fontSize: "36px", fontWeight: "bold", margin: "0 0 12px" }}>
+        <h1
+          style={{ fontSize: "36px", fontWeight: "bold", margin: "0 0 12px" }}
+        >
           Find Your Perfect Bike
         </h1>
         <p style={{ color: "#6b7280", fontSize: "18px", margin: 0 }}>
-          Tell me about yourself — height, budget, commute, riding style —
-          and I'll recommend the perfect motorcycle with full reasoning.
+          Tell me about yourself — height, budget, commute, riding style — and
+          I&apos;ll recommend the perfect motorcycle.
         </p>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          marginBottom: "32px",
-        }}
-      >
+      <div style={{ display: "flex", gap: "8px", marginBottom: "32px" }}>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          placeholder='Try: "5\'7, Bangalore commute 25km, budget 2.5L, weekend highway trips"'
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
+          placeholder="Try: 5'7, Bangalore commute 25km, budget 2.5L, weekend trips"
           style={{
             flex: 1,
             padding: "14px 16px",
@@ -119,37 +123,6 @@ export default function Home() {
         </div>
       )}
 
-      <div
-        style={{
-          marginTop: "48px",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "16px",
-        }}
-      >
-        {[
-          { label: "Compare Bikes", desc: "AI-powered trade-off analysis", href: "/compare" },
-          { label: "AI Chat", desc: "Conversational bike advisor", href: "/chat" },
-          { label: "Reviews", desc: "Community-verified insights", href: "/reviews" },
-        ].map((card) => (
-          <a
-            key={card.label}
-            href={card.href}
-            style={{
-              display: "block",
-              padding: "20px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <strong style={{ display: "block", marginBottom: "4px" }}>{card.label}</strong>
-            <span style={{ color: "#6b7280", fontSize: "14px" }}>{card.desc}</span>
-          </a>
-        ))}
-      </div>
-
       <footer
         style={{
           marginTop: "64px",
@@ -161,9 +134,8 @@ export default function Home() {
         }}
       >
         <p>
-          RideShala is open source (MIT License). Every recommendation cites its source.
-          <br />
-          No scraping. No tracking. No ads. Community-owned.
+          RideShala is open source (MIT). Every recommendation cites its source.
+          No scraping. No tracking. No ads.
         </p>
       </footer>
     </div>
