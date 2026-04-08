@@ -1,17 +1,13 @@
 """RideShala Error Codes — unique identifiers for every error type.
 
-Every error in the system has a code like RS-1001.
-When something breaks in production, search logs for the code
-to instantly find the root cause.
-
 Error code ranges:
-    RS-1xxx  →  Authentication & authorization errors
-    RS-2xxx  →  Input validation errors
-    RS-3xxx  →  LLM & AI pipeline errors
-    RS-4xxx  →  Database & storage errors
-    RS-5xxx  →  External service errors (Groq, HuggingFace, weather, maps)
-    RS-6xxx  →  Rate limiting & abuse prevention
-    RS-7xxx  →  Data privacy & compliance errors
+    RS-1xxx  →  Authentication & authorization
+    RS-2xxx  →  Input validation
+    RS-3xxx  →  LLM & AI pipeline
+    RS-4xxx  →  Database & storage
+    RS-5xxx  →  External services
+    RS-6xxx  →  Rate limiting
+    RS-7xxx  →  Data privacy & compliance
     RS-9xxx  →  Internal server errors
 """
 
@@ -35,102 +31,102 @@ class RideShalaError(HTTPException):
 
 
 # ─── Authentication (RS-1xxx) ──────────────────────────
-class AuthRequired(RideShalaError):
+class AuthRequiredError(RideShalaError):
     def __init__(self):
         super().__init__("RS-1001", "Authentication required", 401)
 
 
-class TokenExpired(RideShalaError):
+class TokenExpiredError(RideShalaError):
     def __init__(self):
         super().__init__("RS-1002", "Token has expired", 401)
 
 
-class TokenInvalid(RideShalaError):
+class TokenInvalidError(RideShalaError):
     def __init__(self):
         super().__init__("RS-1003", "Invalid token", 401)
 
 
 # ─── Input Validation (RS-2xxx) ────────────────────────
-class BikeNotFound(RideShalaError):
+class BikeNotFoundError(RideShalaError):
     def __init__(self, slug: str):
         super().__init__("RS-2001", f"Bike '{slug}' not found in database", 404)
 
 
-class ReviewTooShort(RideShalaError):
+class ReviewTooShortError(RideShalaError):
     def __init__(self):
         super().__init__("RS-2002", "Review must be at least 50 characters", 400)
 
 
-class ConsentRequired(RideShalaError):
+class ConsentRequiredError(RideShalaError):
     def __init__(self):
         super().__init__("RS-2003", "Consent is required to submit content (CC BY-SA 4.0)", 400)
 
 
-class DuplicateContent(RideShalaError):
+class DuplicateContentError(RideShalaError):
     def __init__(self):
         super().__init__("RS-2004", "This content appears to be a duplicate", 409)
 
 
-class ModerationRejected(RideShalaError):
+class ModerationRejectedError(RideShalaError):
     def __init__(self, reason: str):
         super().__init__("RS-2005", f"Content rejected by moderation: {reason}", 400)
 
 
-class InvalidBikeCount(RideShalaError):
+class InvalidBikeCountError(RideShalaError):
     def __init__(self):
         super().__init__("RS-2006", "Comparison requires 2-4 bikes", 400)
 
 
 # ─── LLM & AI Pipeline (RS-3xxx) ──────────────────────
-class LLMUnavailable(RideShalaError):
+class LLMUnavailableError(RideShalaError):
     def __init__(self):
         super().__init__("RS-3001", "AI service temporarily unavailable. Please try again.", 503)
 
 
-class LLMTimeout(RideShalaError):
+class LLMTimeoutError(RideShalaError):
     def __init__(self):
         super().__init__("RS-3002", "AI response timed out. Please try a simpler question.", 504)
 
 
-class IntentClassificationFailed(RideShalaError):
+class IntentClassificationFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-3003", "Could not understand the question. Please rephrase.", 400)
 
 
-class GraphExecutionFailed(RideShalaError):
+class GraphExecutionFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-3004", "AI pipeline error. Please try again.", 500)
 
 
 # ─── Database & Storage (RS-4xxx) ──────────────────────
-class DatabaseConnectionFailed(RideShalaError):
+class DatabaseConnectionFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-4001", "Database connection failed", 503)
 
 
-class DataWriteFailed(RideShalaError):
+class DataWriteFailedError(RideShalaError):
     def __init__(self, resource: str):
         super().__init__("RS-4002", f"Failed to save {resource}", 500)
 
 
 # ─── External Services (RS-5xxx) ───────────────────────
-class WeatherServiceFailed(RideShalaError):
+class WeatherServiceFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-5001", "Weather data unavailable", 502)
 
 
-class RoutingServiceFailed(RideShalaError):
+class RoutingServiceFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-5002", "Route planning service unavailable", 502)
 
 
-class EmbeddingServiceFailed(RideShalaError):
+class EmbeddingServiceFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-5003", "Embedding service unavailable", 502)
 
 
 # ─── Rate Limiting (RS-6xxx) ──────────────────────────
-class RateLimitExceeded(RideShalaError):
+class RateLimitExceededError(RideShalaError):
     def __init__(self, limit: int, tier: str):
         super().__init__(
             "RS-6001",
@@ -140,12 +136,12 @@ class RateLimitExceeded(RideShalaError):
 
 
 # ─── Data Privacy (RS-7xxx) ───────────────────────────
-class UserDataNotFound(RideShalaError):
+class UserDataNotFoundError(RideShalaError):
     def __init__(self, user_id: str):
         super().__init__("RS-7001", f"No data found for user '{user_id}'", 404)
 
 
-class DataDeletionFailed(RideShalaError):
+class DataDeletionFailedError(RideShalaError):
     def __init__(self):
         super().__init__("RS-7002", "Failed to delete user data. Contact support.", 500)
 

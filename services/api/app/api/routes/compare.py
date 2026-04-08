@@ -1,19 +1,16 @@
-"""Bike comparison API endpoints.
-
-Uses the LangGraph agent graph for AI-powered comparison with reasoning,
-and the finance agent for Total Cost of Ownership calculations.
-"""
+"""Bike comparison API endpoints."""
 
 import bleach
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 
 from app.middleware.rate_limiter import rate_limit_check
-
 from packages.ai.agents.tools.calculators import calculate_emi, calculate_insurance, calculate_rto
 from packages.ai.agents.tools.search_specs import search_bike_specs
 
 router = APIRouter()
+
+_rate_limit = Depends(rate_limit_check)
 
 
 class CompareRequest(BaseModel):
@@ -24,7 +21,7 @@ class CompareRequest(BaseModel):
 
 
 @router.post("")
-async def compare_bikes(request: CompareRequest, req: Request, _=Depends(rate_limit_check)):
+async def compare_bikes(request: CompareRequest, req: Request, _=_rate_limit):  # noqa: B008
     """AI-powered bike comparison with reasoning."""
     graph = getattr(req.app.state, "graph", None)
 
@@ -92,7 +89,6 @@ async def compare_bikes(request: CompareRequest, req: Request, _=Depends(rate_li
                 "provider": "error",
             }
 
-    # Fallback: return spec data directly when graph not available
     specs = {}
     for bike_name in request.bikes:
         results = await search_bike_specs(model_name=bike_name)
@@ -110,10 +106,7 @@ async def compare_bikes(request: CompareRequest, req: Request, _=Depends(rate_li
 
 @router.post("/tco")
 async def compare_tco(request: CompareRequest):
-    """Total Cost of Ownership comparison.
-
-    Uses real financial calculators with published government rate data.
-    """
+    """Total Cost of Ownership comparison."""
     tco_results = {}
 
     for bike_name in request.bikes:
@@ -133,15 +126,13 @@ async def compare_tco(request: CompareRequest):
         insurance_y2 = calculate_insurance(price, cc, year=2)
         emi = calculate_emi(price)
 
-        # 5-year fuel cost estimate
         daily_km = 30
         annual_km = daily_km * 300
-        petrol_price = 102.86  # IOCL Bangalore
+        petrol_price = 102.86
         annual_fuel = int((annual_km / mileage) * petrol_price) if mileage > 0 else 0
         fuel_5yr = annual_fuel * 5
 
-        # 5-year service estimate
-        service_per_year = 3000 * 2  # ~2 services/year
+        service_per_year = 3000 * 2
         service_5yr = service_per_year * 5
 
         total_5yr = price + rto["rto_charge_inr"] + insurance_y1["total_premium_inr"] + (insurance_y2["total_premium_inr"] * 4) + fuel_5yr + service_5yr

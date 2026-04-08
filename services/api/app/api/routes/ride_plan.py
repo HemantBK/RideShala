@@ -12,6 +12,8 @@ from app.middleware.rate_limiter import rate_limit_check
 
 router = APIRouter()
 
+_rate_limit = Depends(rate_limit_check)
+
 
 class RidePlanRequest(BaseModel):
     query: str = Field(..., min_length=5, max_length=500)
@@ -19,7 +21,7 @@ class RidePlanRequest(BaseModel):
 
 
 @router.post("")
-async def plan_ride(request: RidePlanRequest, req: Request, _=Depends(rate_limit_check)):
+async def plan_ride(request: RidePlanRequest, req: Request, _=_rate_limit):  # noqa: B008
     """Plan a ride with route, fuel stops, weather, and safety tips.
 
     Example: "Plan a ride from Bangalore to Coorg on my Meteor 350"

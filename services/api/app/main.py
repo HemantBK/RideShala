@@ -13,7 +13,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Histogram, make_asgi_app
 
-from app.api.routes import chat, compare, contributions, feedback, health, privacy, reviews, ride_plan, specs, tracking
+from app.api.routes import (
+    chat,
+    compare,
+    contributions,
+    feedback,
+    health,
+    privacy,
+    reviews,
+    ride_plan,
+    specs,
+    tracking,
+)
 
 # Load .env from project root
 _env_path = Path(__file__).resolve().parents[3] / ".env"

@@ -1,23 +1,21 @@
-"""Streaming AI chat endpoint using Server-Sent Events (SSE).
-
-This is the main conversational interface. User messages are processed
-through the LangGraph agent graph, which routes to the appropriate
-agent (research, comparison, safety, finance) based on intent.
-"""
+"""Streaming AI chat endpoint using Server-Sent Events (SSE)."""
 
 import json
 import logging
 
 import bleach
 from fastapi import APIRouter, Depends, Request
-
-from app.middleware.rate_limiter import rate_limit_check
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
+
+from app.middleware.rate_limiter import rate_limit_check
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# Module-level dependency — avoids B008 (function call in default argument)
+_rate_limit = Depends(rate_limit_check)
 
 
 class ChatRequest(BaseModel):
@@ -30,23 +28,17 @@ class ChatRequest(BaseModel):
     @field_validator("message")
     @classmethod
     def sanitize_message(cls, v: str) -> str:
-        """Strip HTML tags to prevent XSS."""
         return bleach.clean(v, tags=[], strip=True)
 
 
 @router.post("/stream")
-async def chat_stream(request: ChatRequest, req: Request, _=Depends(rate_limit_check)):
-    """Stream AI response via Server-Sent Events.
-
-    The response is streamed token-by-token for a responsive chat UX.
-    The final SSE event includes source citations and metadata.
-    """
+async def chat_stream(request: ChatRequest, req: Request, _=_rate_limit):  # noqa: B008
+    """Stream AI response via Server-Sent Events."""
 
     async def event_generator():
         graph = getattr(req.app.state, "graph", None)
 
         if graph:
-            # Process through LangGraph agent graph
             try:
                 initial_state = {
                     "messages": [{"role": "user", "content": request.message}],
@@ -70,7 +62,6 @@ async def chat_stream(request: ChatRequest, req: Request, _=Depends(rate_limit_c
 
                 result = await graph.ainvoke(initial_state)
 
-                # Extract the assistant's response
                 messages = result.get("messages", [])
                 response_text = ""
                 for msg in reversed(messages):
@@ -84,13 +75,11 @@ async def chat_stream(request: ChatRequest, req: Request, _=Depends(rate_limit_c
                 if not response_text:
                     response_text = "I processed your request but couldn't generate a response. Please try again."
 
-                # Stream word by word for responsive UX
                 words = response_text.split()
                 for i, word in enumerate(words):
                     token = word + (" " if i < len(words) - 1 else "")
                     yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
 
-                # Final event with metadata
                 yield f"data: {json.dumps({'type': 'done', 'sources': result.get('sources', []), 'intent': result.get('intent', 'unknown'), 'tokens_used': result.get('total_tokens', 0), 'provider': result.get('provider', 'unknown')})}\n\n"
 
             except Exception as e:
@@ -100,13 +89,11 @@ async def chat_stream(request: ChatRequest, req: Request, _=Depends(rate_limit_c
                 yield f"data: {json.dumps({'type': 'done', 'sources': [], 'error': str(e)})}\n\n"
 
         else:
-            # Fallback when LangGraph is not initialized
             fallback = (
                 f"Thanks for your question: '{request.message}'. "
                 f"The AI agents are starting up. Once connected, I'll use our "
-                f"multi-agent system (research, comparison, safety, finance) "
-                f"powered by vLLM and Claude to give you a personalized answer "
-                f"with source citations."
+                f"multi-agent system powered by vLLM and Claude to give you a "
+                f"personalized answer with source citations."
             )
             for word in fallback.split():
                 yield f"data: {json.dumps({'type': 'token', 'content': word + ' '})}\n\n"
@@ -124,7 +111,7 @@ async def chat_stream(request: ChatRequest, req: Request, _=Depends(rate_limit_c
 
 
 @router.post("")
-async def chat_sync(request: ChatRequest, req: Request, _=Depends(rate_limit_check)):
+async def chat_sync(request: ChatRequest, req: Request, _=_rate_limit):  # noqa: B008
     """Non-streaming chat endpoint for simpler clients."""
     graph = getattr(req.app.state, "graph", None)
 
