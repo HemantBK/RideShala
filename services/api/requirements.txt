@@ -10,7 +10,7 @@ asyncpg==0.30.*
 alembic==1.14.*
 
 # Vector database
-qdrant-client==1.12.*
+qdrant-client==1.17.*
 
 # Cache
 redis[hiredis]==5.2.*
