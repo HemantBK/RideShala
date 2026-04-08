@@ -2,18 +2,15 @@
 
 import os
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
+from uuid import uuid4
 
 from dotenv import load_dotenv
 
-# Load .env from project root (works whether running from services/api or project root)
+# Load .env from project root before any other imports read env vars
 _env_path = Path(__file__).resolve().parents[3] / ".env"
-if _env_path.exists():
-    load_dotenv(_env_path)
-else:
-    load_dotenv()  # Try current directory
-from contextlib import asynccontextmanager
-from uuid import uuid4
+load_dotenv(_env_path if _env_path.exists() else None)
 
 import structlog
 from fastapi import FastAPI, Request
@@ -40,25 +37,19 @@ REQUEST_COUNT = Counter(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application startup and shutdown.
-
-    Initializes database connections, LLM router, and vector store clients.
-    These are stored in app.state for access by route handlers.
-    """
+    """Application startup and shutdown."""
     logger.info("rideshala_starting", env=os.getenv("APP_ENV", "development"))
 
-    # Initialize database connection pool
     import asyncpg
 
     try:
         db_url = os.getenv("DATABASE_URL", "postgresql://rideshala:rideshala@localhost:5432/rideshala")
         app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-        logger.info("database_connected", url=db_url.split("@")[-1])  # Log host only, not creds
+        logger.info("database_connected", url=db_url.split("@")[-1])
     except Exception as e:
         logger.warning("database_connection_failed", error=str(e))
         app.state.db_pool = None
 
-    # Initialize Redis
     try:
         import redis.asyncio as aioredis
 
@@ -70,7 +61,6 @@ async def lifespan(app: FastAPI):
         logger.warning("redis_connection_failed", error=str(e))
         app.state.redis = None
 
-    # Initialize LLM Router (vLLM + Claude + Groq with circuit breakers)
     try:
         from packages.ai.llm.router import LLMRouter
 
@@ -81,7 +71,6 @@ async def lifespan(app: FastAPI):
         logger.warning("llm_router_init_failed", error=str(e))
         app.state.llm_router = None
 
-    # Initialize Qdrant client
     try:
         from qdrant_client import AsyncQdrantClient
 
@@ -92,7 +81,6 @@ async def lifespan(app: FastAPI):
         logger.warning("qdrant_connection_failed", error=str(e))
         app.state.qdrant = None
 
-    # Initialize LangGraph
     try:
         from packages.ai.agents.graph import rideshala_graph
 
@@ -106,7 +94,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown — clean up connections
     if app.state.db_pool:
         await app.state.db_pool.close()
     if app.state.redis:
@@ -122,7 +109,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ─── CORS ───────────────────────────────────────────────
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
@@ -131,11 +117,9 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
-# ─── Prometheus metrics endpoint ────────────────────────
 metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
 
-# ─── Routes ─────────────────────────────────────────────
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(specs.router, prefix="/api/v1/specs", tags=["specs"])
@@ -146,10 +130,9 @@ app.include_router(contributions.router, prefix="/api/v1/contributions", tags=["
 app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["feedback"])
 
 
-# ─── Observability Middleware ───────────────────────────
 @app.middleware("http")
 async def observability_middleware(request: Request, call_next):
-    """Add request_id, structured logging, and metrics to every request."""
+    """Add request_id, structured logging, and metrics."""
     request_id = str(uuid4())
     structlog.contextvars.bind_contextvars(request_id=request_id)
 
@@ -160,12 +143,8 @@ async def observability_middleware(request: Request, call_next):
     status = str(response.status_code)
     endpoint = request.url.path
 
-    REQUEST_LATENCY.labels(
-        method=request.method, endpoint=endpoint, status=status
-    ).observe(duration)
-    REQUEST_COUNT.labels(
-        method=request.method, endpoint=endpoint, status=status
-    ).inc()
+    REQUEST_LATENCY.labels(method=request.method, endpoint=endpoint, status=status).observe(duration)
+    REQUEST_COUNT.labels(method=request.method, endpoint=endpoint, status=status).inc()
 
     logger.info(
         "request_completed",
@@ -179,14 +158,10 @@ async def observability_middleware(request: Request, call_next):
     return response
 
 
-# ─── Global Exception Handler ──────────────────────────
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error("unhandled_exception", error=str(exc), path=request.url.path)
     return JSONResponse(
         status_code=500,
-        content={
-            "error": "Internal server error",
-            "message": "Something went wrong. Please try again.",
-        },
+        content={"error": "Internal server error", "message": "Something went wrong. Please try again."},
     )

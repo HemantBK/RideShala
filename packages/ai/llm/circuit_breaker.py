@@ -1,23 +1,22 @@
 """Lightweight async circuit breaker — replaces pybreaker.
 
 pybreaker uses Tornado's @gen.coroutine which is broken on Python 3.13+.
-This is a native async implementation in 40 lines. Zero external dependencies.
+This is a native async implementation. Zero external dependencies.
 
 States:
-    CLOSED  → Normal operation. Failures are counted.
-    OPEN    → After fail_max failures, all calls are rejected for reset_timeout seconds.
-    HALF_OPEN → After timeout, one call is allowed through. If it succeeds → CLOSED. If fails → OPEN.
+    CLOSED  -> Normal. Failures counted.
+    OPEN    -> After fail_max failures, all calls rejected for reset_timeout seconds.
+    HALF_OPEN -> After timeout, one call allowed. Success -> CLOSED. Fail -> OPEN.
 """
 
-import time
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
 
-class CircuitBreakerOpen(Exception):
+class CircuitBreakerOpenError(Exception):
     """Raised when the circuit breaker is OPEN and rejecting calls."""
-    pass
 
 
 class AsyncCircuitBreaker:
@@ -29,23 +28,21 @@ class AsyncCircuitBreaker:
         self.reset_timeout = reset_timeout
         self.fail_count = 0
         self.last_failure_time = 0.0
-        self.state = "closed"  # closed, open, half_open
+        self.state = "closed"
 
     async def call(self, func, *args, **kwargs):
         """Call the async function with circuit breaker protection."""
         now = time.time()
 
-        # If OPEN, check if timeout has passed
         if self.state == "open":
             if now - self.last_failure_time >= self.reset_timeout:
                 self.state = "half_open"
                 logger.info(f"circuit_breaker_half_open name={self.name}")
             else:
-                raise CircuitBreakerOpen(f"Circuit breaker '{self.name}' is OPEN")
+                raise CircuitBreakerOpenError(f"Circuit breaker '{self.name}' is OPEN")
 
         try:
             result = await func(*args, **kwargs)
-            # Success — reset to closed
             if self.state == "half_open":
                 logger.info(f"circuit_breaker_closed name={self.name}")
             self.fail_count = 0
@@ -63,7 +60,7 @@ class AsyncCircuitBreaker:
                     f"failures={self.fail_count} timeout={self.reset_timeout}s"
                 )
 
-            raise e
+            raise
 
     @property
     def current_state(self) -> str:

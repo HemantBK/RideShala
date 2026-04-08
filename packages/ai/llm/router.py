@@ -10,7 +10,7 @@ The system works fully with just vLLM — no paid API keys needed.
 import logging
 import os
 
-from packages.ai.llm.circuit_breaker import AsyncCircuitBreaker, CircuitBreakerOpen
+from packages.ai.llm.circuit_breaker import AsyncCircuitBreaker, CircuitBreakerOpenError
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +135,7 @@ class LLMRouter:
                     )
                 return result
 
-            except CircuitBreakerOpen:
+            except CircuitBreakerOpenError:
                 logger.warning(f"Circuit breaker open for {p}, trying next provider")
                 continue
             except Exception as e:
@@ -150,10 +150,7 @@ class LLMRouter:
         """Build fallback chain with all available providers."""
         if preferred == "claude" and "claude" in self.providers:
             return ["claude", "groq", "huggingface", "vllm"]
-        if preferred in self.providers:
-            chain = [preferred]
-        else:
-            chain = []
+        chain = [preferred] if preferred in self.providers else []
         # Add all other providers as fallbacks
         for p in ["vllm", "groq", "gemini", "huggingface", "claude"]:
             if p not in chain:

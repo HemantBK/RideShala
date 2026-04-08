@@ -82,8 +82,8 @@ def check_toxicity(text: str) -> dict:
         if word in text_lower:
             return {
                 "passed": False,
-                "reason": f"Review contains potentially abusive language. "
-                f"Please keep your review constructive and respectful.",
+                "reason": "Review contains potentially abusive language. "
+                "Please keep your review constructive and respectful.",
                 "flagged_word": word,
             }
 
@@ -167,7 +167,7 @@ def moderate_review(text: str, existing_reviews: list[dict] | None = None) -> di
 
     if not all_passed:
         # Find first failing check
-        for name, check in checks.items():
+        for _name, check in checks.items():
             if not check["passed"]:
                 result["reason"] = check["reason"]
                 break

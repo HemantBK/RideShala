@@ -3,8 +3,6 @@
 Performs real connectivity checks against all dependent services.
 """
 
-import os
-
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 

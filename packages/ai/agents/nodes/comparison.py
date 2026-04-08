@@ -55,7 +55,7 @@ async def comparison_agent_node(state: RideShalaState) -> dict:
 
     if specs:
         context_parts.append("\n--- REAL SPECS FROM OUR DATABASE ---")
-        for name, spec in specs.items():
+        for _name, spec in specs.items():
             context_parts.append(
                 f"\n**{spec['brand']} {spec['name']}**\n"
                 f"  Engine: {spec.get('engine_cc', '?')}cc, {spec.get('power_bhp', '?')} bhp, "

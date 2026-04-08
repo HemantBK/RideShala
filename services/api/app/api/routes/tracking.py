@@ -12,14 +12,13 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# MVP file stores
 _DATA_DIR = Path(__file__).parents[5] / "data"
 _MILEAGE_FILE = _DATA_DIR / "mileage_logs.json"
 _SERVICE_FILE = _DATA_DIR / "service_logs.json"
@@ -86,8 +85,8 @@ async def get_mileage_stats(bike_model: str):
 
     model_lower = bike_model.lower().replace("-", " ")
     bike_logs = [
-        l for l in logs
-        if model_lower in l.get("bike_model", "").lower().replace("-", " ")
+        entry for entry in logs
+        if model_lower in entry.get("bike_model", "").lower().replace("-", " ")
     ]
 
     if len(bike_logs) < 2:
@@ -98,9 +97,8 @@ async def get_mileage_stats(bike_model: str):
             "message": "Need at least 2 fill-up entries to calculate mileage.",
         }
 
-    # Sort by odometer and calculate kpl between consecutive full-tank entries
     full_tank = sorted(
-        [l for l in bike_logs if l.get("is_full_tank")],
+        [entry for entry in bike_logs if entry.get("is_full_tank")],
         key=lambda x: x["odometer_km"],
     )
 
@@ -113,7 +111,7 @@ async def get_mileage_stats(bike_model: str):
 
     avg_mileage = round(sum(mileages) / len(mileages), 1) if mileages else None
     avg_cost = round(
-        sum(l.get("total_cost", 0) for l in bike_logs) / len(bike_logs), 0
+        sum(entry.get("total_cost", 0) for entry in bike_logs) / len(bike_logs), 0
     ) if bike_logs else None
 
     return {
@@ -175,8 +173,8 @@ async def get_service_stats(bike_model: str):
 
     model_lower = bike_model.lower().replace("-", " ")
     bike_logs = [
-        l for l in logs
-        if model_lower in l.get("bike_model", "").lower().replace("-", " ")
+        entry for entry in logs
+        if model_lower in entry.get("bike_model", "").lower().replace("-", " ")
     ]
 
     if not bike_logs:
@@ -187,11 +185,11 @@ async def get_service_stats(bike_model: str):
             "message": "No service data yet. Be the first to contribute!",
         }
 
-    costs = [l["total_cost_inr"] for l in bike_logs]
+    costs = [entry["total_cost_inr"] for entry in bike_logs]
     by_type = {}
-    for l in bike_logs:
-        t = l.get("service_type", "other")
-        by_type.setdefault(t, []).append(l["total_cost_inr"])
+    for entry in bike_logs:
+        t = entry.get("service_type", "other")
+        by_type.setdefault(t, []).append(entry["total_cost_inr"])
 
     return {
         "bike": bike_model,
@@ -204,8 +202,8 @@ async def get_service_stats(bike_model: str):
             for t, c in by_type.items()
         },
         "dealer_vs_local": {
-            "dealer": len([l for l in bike_logs if l.get("dealer_or_local") == "dealer"]),
-            "local": len([l for l in bike_logs if l.get("dealer_or_local") == "local"]),
+            "dealer": len([entry for entry in bike_logs if entry.get("dealer_or_local") == "dealer"]),
+            "local": len([entry for entry in bike_logs if entry.get("dealer_or_local") == "local"]),
         },
         "source": f"Aggregated from {len(bike_logs)} service logs on RideShala",
     }

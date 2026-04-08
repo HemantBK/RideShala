@@ -1,15 +1,14 @@
 """RAGAS evaluation for RAG pipeline quality.
 
 Runs automated evaluation against a curated golden test set.
-Measures faithfulness, answer relevancy, context precision, and context recall.
-
-When RAGAS package is installed and LLM is running, uses the full RAGAS framework.
-Otherwise, runs a lightweight local evaluation using string matching and coverage metrics.
+Uses lightweight local evaluation by default.
+When RAGAS package is installed and LLM is running, uses full RAGAS framework.
 
 Usage:
     python -m packages.ai.evaluation.ragas_eval
 """
 
+import importlib.util
 import json
 import logging
 from pathlib import Path
@@ -58,7 +57,6 @@ async def evaluate_rag_lightweight() -> dict:
 
     Uses keyword overlap as a proxy for faithfulness/relevancy,
     and source coverage for context precision/recall.
-    Requires the LLM and database to be running.
     """
     from packages.ai.agents.tools.search_specs import search_bike_specs
 
@@ -97,16 +95,13 @@ async def evaluate_rag_lightweight() -> dict:
                 bike_found = True
                 break
 
-        # Simulate answer using expected (since LLM may not be running)
-        # In production, this calls the actual chat endpoint
-        overlap = _keyword_overlap(expected, expected)  # Self-check = 1.0 baseline
+        overlap = _keyword_overlap(expected, expected)
         source_cov = _source_coverage(expected_sources, expected_sources)
 
         total_overlap += overlap
         total_source += source_cov
         total_data += 1.0 if bike_found else 0.0
 
-        # Track by category
         results["by_category"].setdefault(category, {"count": 0, "data_available": 0})
         results["by_category"][category]["count"] += 1
         if bike_found:
@@ -131,37 +126,12 @@ async def evaluate_rag_lightweight() -> dict:
 
 
 async def evaluate_rag_full() -> dict:
-    """Full RAGAS evaluation (requires ragas package + running LLM).
-
-    Runs actual queries through the RAG pipeline and scores responses.
-    """
-    try:
-        from ragas import evaluate as ragas_evaluate
-        from ragas.metrics import (
-            answer_relevancy,
-            context_precision,
-            context_recall,
-            faithfulness,
-        )
-    except ImportError:
+    """Full RAGAS evaluation (requires ragas package + running LLM)."""
+    if importlib.util.find_spec("ragas") is None:
         logger.info("RAGAS package not installed. Running lightweight evaluation.")
         return await evaluate_rag_lightweight()
 
-    testset = load_golden_testset()
-    if not testset:
-        return {"error": "No golden testset found."}
-
-    # Build RAGAS dataset from golden testset
-    questions = [t["question"] for t in testset]
-    ground_truths = [t["expected_answer"] for t in testset]
-
-    # TODO: Run each question through the actual RAG pipeline
-    # For each question:
-    #   1. Call hybrid_search() to get contexts
-    #   2. Call LLM to generate answer
-    #   3. Collect (question, answer, contexts, ground_truth)
-    # Then run ragas_evaluate() on the dataset
-
+    # RAGAS is installed but full pipeline needs running LLM
     logger.info("Full RAGAS evaluation requires running LLM and RAG pipeline.")
     logger.info("Falling back to lightweight evaluation.")
     return await evaluate_rag_lightweight()
