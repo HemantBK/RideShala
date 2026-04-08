@@ -1,5 +1,6 @@
 """RideShala FastAPI application entry point."""
 
+import asyncio
 import os
 import time
 from contextlib import asynccontextmanager
@@ -32,7 +33,6 @@ load_dotenv(_env_path if _env_path.exists() else None)
 
 logger = structlog.get_logger()
 
-# ─── Prometheus Metrics ─────────────────────────────────
 REQUEST_LATENCY = Histogram(
     "http_request_duration_seconds",
     "HTTP request latency",
@@ -45,21 +45,25 @@ REQUEST_COUNT = Counter(
 )
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application startup and shutdown."""
-    logger.info("rideshala_starting", env=os.getenv("APP_ENV", "development"))
+async def _init_services(app: FastAPI):
+    """Initialize services in background — doesn't block server startup.
 
-    import asyncpg
-
+    This is the industry pattern for slow-starting services on free tier.
+    The server starts immediately and handles health checks.
+    Services become available as they connect.
+    """
+    # Database
     try:
+        import asyncpg
+
         db_url = os.getenv("DATABASE_URL", "postgresql://rideshala:rideshala@localhost:5432/rideshala")
-        app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+        app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
         logger.info("database_connected", url=db_url.split("@")[-1])
     except Exception as e:
         logger.warning("database_connection_failed", error=str(e))
         app.state.db_pool = None
 
+    # Redis
     try:
         import redis.asyncio as aioredis
 
@@ -71,26 +75,17 @@ async def lifespan(app: FastAPI):
         logger.warning("redis_connection_failed", error=str(e))
         app.state.redis = None
 
+    # LLM Router
     try:
         from packages.ai.llm.router import LLMRouter
 
         app.state.llm_router = LLMRouter()
-        providers = list(app.state.llm_router.providers.keys())
-        logger.info("llm_router_initialized", providers=providers)
+        logger.info("llm_router_initialized", providers=list(app.state.llm_router.providers.keys()))
     except Exception as e:
         logger.warning("llm_router_init_failed", error=str(e))
         app.state.llm_router = None
 
-    try:
-        from qdrant_client import AsyncQdrantClient
-
-        qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-        app.state.qdrant = AsyncQdrantClient(url=qdrant_url)
-        logger.info("qdrant_connected", url=qdrant_url)
-    except Exception as e:
-        logger.warning("qdrant_connection_failed", error=str(e))
-        app.state.qdrant = None
-
+    # LangGraph
     try:
         from packages.ai.agents.graph import rideshala_graph
 
@@ -99,6 +94,24 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("langgraph_init_failed", error=str(e))
         app.state.graph = None
+
+    logger.info("all_services_initialized")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Fast startup — server starts immediately, services init in background."""
+    logger.info("rideshala_starting", env=os.getenv("APP_ENV", "development"))
+
+    # Set defaults so endpoints don't crash during init
+    app.state.db_pool = None
+    app.state.redis = None
+    app.state.llm_router = None
+    app.state.qdrant = None
+    app.state.graph = None
+
+    # Start service initialization in background — doesn't block server
+    asyncio.create_task(_init_services(app))
 
     logger.info("rideshala_started_successfully")
 
@@ -121,7 +134,7 @@ app = FastAPI(
 
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 if "*" in cors_origins and os.getenv("APP_ENV") == "production":
-    logger.error("CORS_ORIGINS cannot be '*' in production. Set specific domains.")
+    logger.error("CORS_ORIGINS cannot be '*' in production.")
     cors_origins = []
 app.add_middleware(
     CORSMiddleware,
@@ -130,7 +143,6 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
-# Only expose Prometheus metrics in non-production environments
 if os.getenv("APP_ENV") != "production":
     metrics_app = make_asgi_app()
     app.mount("/metrics", metrics_app)
