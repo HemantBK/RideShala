@@ -20,7 +20,7 @@ meilisearch==0.31.*
 
 # LLM providers
 openai==1.60.*          # For vLLM + Groq (OpenAI-compatible API)
-anthropic==0.40.*       # For Claude API
+anthropic==0.91.*       # For Claude API
 
 # AI orchestration
 langgraph==0.2.*
