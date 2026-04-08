@@ -7,7 +7,6 @@ All specs sourced from OEM manufacturer websites — facts are not copyrightable
 from fastapi import APIRouter, Query
 
 from app.errors import BikeNotFoundError
-from packages.ai.agents.tools.search_specs import get_bike_by_slug, search_bike_specs
 
 router = APIRouter()
 
@@ -23,6 +22,8 @@ async def list_bikes(
     offset: int = Query(0, ge=0),
 ):
     """List bikes with optional search and filters."""
+    from packages.ai.agents.tools.search_specs import search_bike_specs
+
     results = await search_bike_specs(
         model_name=search,
         brand=brand,
@@ -45,6 +46,8 @@ async def list_bikes(
 @router.get("/{bike_slug}")
 async def get_bike(bike_slug: str):
     """Get full specifications for a single bike."""
+    from packages.ai.agents.tools.search_specs import get_bike_by_slug
+
     bike = await get_bike_by_slug(bike_slug)
     if not bike:
         raise BikeNotFoundError(bike_slug)
@@ -58,6 +61,8 @@ async def get_review_summary(bike_slug: str):
     Aggregates insights from user reviews on our platform.
     Returns placeholder until review data is populated.
     """
+    from packages.ai.agents.tools.search_specs import get_bike_by_slug
+
     bike = await get_bike_by_slug(bike_slug)
     if not bike:
         raise BikeNotFoundError(bike_slug)

@@ -5,8 +5,6 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 
 from app.middleware.rate_limiter import rate_limit_check
-from packages.ai.agents.tools.calculators import calculate_emi, calculate_insurance, calculate_rto
-from packages.ai.agents.tools.search_specs import search_bike_specs
 
 router = APIRouter()
 
@@ -23,6 +21,8 @@ class CompareRequest(BaseModel):
 @router.post("")
 async def compare_bikes(request: CompareRequest, req: Request, _=_rate_limit):  # noqa: B008
     """AI-powered bike comparison with reasoning."""
+    from packages.ai.agents.tools.search_specs import search_bike_specs
+
     graph = getattr(req.app.state, "graph", None)
 
     if graph:
@@ -107,6 +107,9 @@ async def compare_bikes(request: CompareRequest, req: Request, _=_rate_limit):  
 @router.post("/tco")
 async def compare_tco(request: CompareRequest):
     """Total Cost of Ownership comparison."""
+    from packages.ai.agents.tools.calculators import calculate_emi, calculate_insurance, calculate_rto
+    from packages.ai.agents.tools.search_specs import search_bike_specs
+
     tco_results = {}
 
     for bike_name in request.bikes:
