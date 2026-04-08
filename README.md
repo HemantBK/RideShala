@@ -9,6 +9,7 @@ Built with Mistral 7B | vLLM | LangGraph | FastAPI | Next.js
 [![CI](https://github.com/HemantBK/RideShala/actions/workflows/ci.yml/badge.svg)](https://github.com/HemantBK/RideShala/actions)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-ride--shala.vercel.app-blue)](https://ride-shala.vercel.app)
 
 ---
 
@@ -75,10 +76,10 @@ Open http://localhost:3000 — no API keys needed. Everything runs locally.
 | **[Architecture](docs/architecture.md)** | System design, diagrams, tech stack, design decisions |
 | **[AI Pipeline](docs/ai-pipeline.md)** | LLM routing, RAG, multi-agent system, prompts, evaluation |
 | **[Model Card](docs/model-card.md)** | Model details, limitations, bias, safety, evaluation metrics |
-| **[API Reference](docs/api.md)** | All 21 endpoints with curl examples |
+| **[API Reference](docs/api.md)** | All 25 endpoints with curl examples, error codes |
 | **[Setup Guide](docs/setup.md)** | Full development environment setup |
 | **[Deployment](docs/deployment.md)** | Docker, production, monitoring, backups |
-| **[Scaling Guide](docs/scaling.md)** | Phase 4 roadmap — Flutter, fine-tuning, K8s, Hindi support |
+| **[Scaling Guide](docs/scaling.md)** | Phase 4 roadmap — Flutter, fine-tuning, K8s, multi-language support |
 | **[Legal Compliance](docs/legal-compliance.md)** | DPDP Act, copyright, data sources |
 | **[Contributing](.github/CONTRIBUTING.md)** | How to contribute code, data, translations |
 

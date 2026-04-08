@@ -10,7 +10,7 @@ Thank you for your interest in contributing to RideShala! Every contribution hel
 - **Verify data**: Cross-check existing specs against OEM sources
 - **Report bugs**: Open an issue describing what went wrong
 - **Suggest features**: Share your ideas in GitHub Discussions
-- **Translations**: Help us support Hindi, Kannada, Tamil, and more
+- **Translations**: Help us support regional Indian languages — contribute translations for your language
 
 ### Code contributions
 

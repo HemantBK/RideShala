@@ -14,6 +14,44 @@ logger = logging.getLogger(__name__)
 _SEED_DATA: list[dict] | None = None
 
 
+def _get_image_url(slug: str, brand: str, name: str) -> str:
+    """Get bike image URL — real OEM images where available, placeholder otherwise.
+
+    Real images are from OEM manufacturer websites (press/media images).
+    These are publicly available and legal for editorial use.
+    Community can contribute more real image URLs via spec contributions.
+    """
+    # Real OEM images from manufacturer media/product pages
+    oem_images = {
+        "royal-enfield-meteor-350": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/meteor/colours/stellar/meteor-350-stellar-red-702x512.png",
+        "royal-enfield-classic-350": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/classic/colours/dark/classic-350-dark-gunmetal-grey-702x512.png",
+        "royal-enfield-hunter-350": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/hunter/colours/retro/hunter-350-retro-dapper-ash-702x512.png",
+        "royal-enfield-guerrilla-450": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/guerrilla/colours/guerrilla-playa-black-702x512.png",
+        "royal-enfield-himalayan-450": "https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/himalayan/colours/himalayan-kamet-white-702x512.png",
+    }
+
+    if slug in oem_images:
+        return oem_images[slug]
+
+    # Fallback: branded placeholder with bike name
+    brand_colors = {
+        "Royal Enfield": "8B0000",
+        "Honda": "CC0000",
+        "Hero": "004B87",
+        "Bajaj": "1A1A6C",
+        "TVS": "0047AB",
+        "KTM": "FF6600",
+        "Yamaha": "0033A0",
+        "Triumph": "000000",
+        "Jawa": "8B4513",
+        "Suzuki": "003DA5",
+        "Kawasaki": "28A745",
+    }
+    color = brand_colors.get(brand, "333333")
+    text = f"{brand}+{name}".replace(" ", "+")
+    return f"https://placehold.co/600x400/{color}/white?text={text}"
+
+
 def _load_seed_data() -> list[dict]:
     """Load seed data from JSON file (fallback when DB not available)."""
     global _SEED_DATA
@@ -23,6 +61,10 @@ def _load_seed_data() -> list[dict]:
     seed_file = Path(__file__).parents[4] / "data" / "seeds" / "bikes_india_top30.json"
     if seed_file.exists():
         _SEED_DATA = json.loads(seed_file.read_text())
+        # Add image URLs to each bike
+        for bike in _SEED_DATA:
+            if "image_url" not in bike:
+                bike["image_url"] = _get_image_url(bike["slug"], bike["brand"], bike["name"])
         logger.info(f"Loaded {len(_SEED_DATA)} bikes from seed data")
     else:
         _SEED_DATA = []

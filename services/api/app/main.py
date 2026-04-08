@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Histogram, make_asgi_app
 
-from app.api.routes import chat, compare, contributions, feedback, health, reviews, specs, tracking
+from app.api.routes import chat, compare, contributions, feedback, health, privacy, reviews, ride_plan, specs, tracking
 
 # Load .env from project root
 _env_path = Path(__file__).resolve().parents[3] / ".env"
@@ -109,15 +109,20 @@ app = FastAPI(
 )
 
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+if "*" in cors_origins and os.getenv("APP_ENV") == "production":
+    logger.error("CORS_ORIGINS cannot be '*' in production. Set specific domains.")
+    cors_origins = []
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
-metrics_app = make_asgi_app()
-app.mount("/metrics", metrics_app)
+# Only expose Prometheus metrics in non-production environments
+if os.getenv("APP_ENV") != "production":
+    metrics_app = make_asgi_app()
+    app.mount("/metrics", metrics_app)
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
@@ -127,6 +132,8 @@ app.include_router(reviews.router, prefix="/api/v1/reviews", tags=["reviews"])
 app.include_router(tracking.router, prefix="/api/v1/tracking", tags=["tracking"])
 app.include_router(contributions.router, prefix="/api/v1/contributions", tags=["contributions"])
 app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["feedback"])
+app.include_router(privacy.router, prefix="/api/v1/privacy", tags=["privacy"])
+app.include_router(ride_plan.router, prefix="/api/v1/ride-plan", tags=["ride-plan"])
 
 
 @app.middleware("http")
@@ -159,8 +166,18 @@ async def observability_middleware(request: Request, call_next):
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error("unhandled_exception", error=str(exc), path=request.url.path)
+    logger.error(
+        "unhandled_exception",
+        error_code="RS-9001",
+        error=str(exc),
+        error_type=type(exc).__name__,
+        path=request.url.path,
+        method=request.method,
+    )
     return JSONResponse(
         status_code=500,
-        content={"error": "Internal server error", "message": "Something went wrong. Please try again."},
+        content={
+            "error_code": "RS-9001",
+            "message": "Something went wrong. Please try again.",
+        },
     )

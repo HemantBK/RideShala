@@ -9,7 +9,9 @@ import json
 import logging
 
 import bleach
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
+
+from app.middleware.rate_limiter import rate_limit_check
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
@@ -33,7 +35,7 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/stream")
-async def chat_stream(request: ChatRequest, req: Request):
+async def chat_stream(request: ChatRequest, req: Request, _=Depends(rate_limit_check)):
     """Stream AI response via Server-Sent Events.
 
     The response is streamed token-by-token for a responsive chat UX.
@@ -122,7 +124,7 @@ async def chat_stream(request: ChatRequest, req: Request):
 
 
 @router.post("")
-async def chat_sync(request: ChatRequest, req: Request):
+async def chat_sync(request: ChatRequest, req: Request, _=Depends(rate_limit_check)):
     """Non-streaming chat endpoint for simpler clients."""
     graph = getattr(req.app.state, "graph", None)
 

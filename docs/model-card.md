@@ -29,7 +29,7 @@ RideShala's AI system is designed for **motorcycle recommendation and comparison
 - **No test rides**: Cannot assess subjective ride quality or feel.
 - **Financial estimates**: TCO calculations are approximate. Not financial advice.
 - **No real-time pricing**: Uses ex-showroom prices, not actual dealer on-road prices.
-- **English only**: Hindi support is Phase 4 (planned, not implemented).
+- **English only**: Regional language support is Phase 4, driven by community contributions.
 
 ## Training Data
 

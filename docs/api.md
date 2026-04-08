@@ -312,6 +312,106 @@ curl http://localhost:8080/api/v1/feedback/stats
 }
 ```
 
+## Ride Planner
+
+### POST /api/v1/ride-plan
+
+Plan a ride with route distance, fuel stops, weather forecast, and safety tips. Uses OSRM (free) for routing and Open-Meteo (free) for weather.
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ride-plan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "Plan a ride from Bangalore to Coorg",
+    "bike_model": "Meteor 350"
+  }'
+```
+
+**Response:**
+```json
+{
+  "plan": "Route: 265 km via NH275, ~5.5 hours. Fuel stops: 1 (near Mysore at ~140 km). Weather: 28°C, partly cloudy...",
+  "sources": ["Route from OSRM", "Weather from Open-Meteo", "Meteor 350 specs from royalenfield.com"],
+  "provider": "groq"
+}
+```
+
+## Privacy (DPDP Act 2023 Compliance)
+
+### GET /api/v1/privacy/data/{user_id}
+
+Right to Access — returns all data associated with a user.
+
+```bash
+curl https://rideshala.onrender.com/api/v1/privacy/data/user123
+```
+
+**Response:**
+```json
+{
+  "user_id": "user123",
+  "reviews": [...],
+  "feedback": [...],
+  "mileage_logs": [...],
+  "service_logs": [...],
+  "total_records": 7
+}
+```
+
+### DELETE /api/v1/privacy/data/{user_id}
+
+Right to Erasure — permanently deletes all user data.
+
+```bash
+curl -X DELETE https://rideshala.onrender.com/api/v1/privacy/data/user123
+```
+
+**Response:**
+```json
+{
+  "user_id": "user123",
+  "deleted": {"reviews": 2, "feedback": 3, "mileage_logs": 1, "service_logs": 1},
+  "total_deleted": 7,
+  "message": "Deleted 7 records. Your data has been erased."
+}
+```
+
+### GET /api/v1/privacy/data/{user_id}/export
+
+Right to Data Portability — exports all user data as JSON.
+
+```bash
+curl https://rideshala.onrender.com/api/v1/privacy/data/user123/export
+```
+
+## Error Codes
+
+Every error response includes an `error_code` for fast debugging:
+
+```json
+{"error_code": "RS-2001", "message": "Bike 'meteor-350' not found in database"}
+```
+
+| Code | Category | Meaning |
+|------|----------|---------|
+| RS-1001 | Auth | Authentication required |
+| RS-1002 | Auth | Token expired |
+| RS-1003 | Auth | Invalid token |
+| RS-2001 | Validation | Bike not found |
+| RS-2004 | Validation | Duplicate content |
+| RS-2005 | Validation | Moderation rejected |
+| RS-3001 | AI | LLM service unavailable |
+| RS-3002 | AI | LLM response timeout |
+| RS-3004 | AI | Agent pipeline error |
+| RS-4001 | Database | Connection failed |
+| RS-5001 | External | Weather service failed |
+| RS-5002 | External | Routing service failed |
+| RS-6001 | Rate limit | Too many requests |
+| RS-7001 | Privacy | User data not found |
+| RS-9001 | Internal | Unhandled server error |
+
+Search production logs by error code: `grep RS-3001` instantly finds all LLM failures.
+
 ## Auto-Generated Docs
 
 | URL | Description |

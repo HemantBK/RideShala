@@ -3,6 +3,8 @@
 Performs real connectivity checks against all dependent services.
 """
 
+import os
+
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
@@ -66,13 +68,15 @@ async def readiness(req: Request):
 
     all_ok = all(checks.values())
 
+    # Don't expose infrastructure details in production
+    is_prod = os.getenv("APP_ENV") == "production"
+    content = {"status": "ready" if all_ok else "degraded"}
+    if not is_prod:
+        content["checks"] = checks
+
     return JSONResponse(
         status_code=200 if all_ok else 503,
-        content={
-            "status": "ready" if all_ok else "degraded",
-            "checks": checks,
-            "providers": llm_router.get_status() if llm_router else {},
-        },
+        content=content,
     )
 
 

@@ -4,8 +4,9 @@ Returns real bike data from the seed database (MVP) or PostgreSQL (production).
 All specs sourced from OEM manufacturer websites — facts are not copyrightable.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 
+from app.errors import BikeNotFound
 from packages.ai.agents.tools.search_specs import get_bike_by_slug, search_bike_specs
 
 router = APIRouter()
@@ -46,7 +47,7 @@ async def get_bike(bike_slug: str):
     """Get full specifications for a single bike."""
     bike = await get_bike_by_slug(bike_slug)
     if not bike:
-        raise HTTPException(status_code=404, detail=f"Bike '{bike_slug}' not found")
+        raise BikeNotFound(bike_slug)
     return bike
 
 
@@ -59,7 +60,7 @@ async def get_review_summary(bike_slug: str):
     """
     bike = await get_bike_by_slug(bike_slug)
     if not bike:
-        raise HTTPException(status_code=404, detail=f"Bike '{bike_slug}' not found")
+        raise BikeNotFound(bike_slug)
 
     return {
         "bike": bike_slug,

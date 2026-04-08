@@ -813,7 +813,7 @@ def check_originality(review_text):
 - [ ] AI comparison report generator
 - [ ] Ride planner (OpenStreetMap + OpenWeather)
 - [ ] Crowd-sourced dealer price tracker
-- [ ] Hindi and Kannada language support
+- [ ] Multi-language support (regional Indian languages — community-driven, based on demand)
 - [ ] Public API for other developers
 
 ---
@@ -2095,7 +2095,7 @@ AI SKILLS SHOWCASED IN RIDEGPT
     ├── Aspect-based review chunking
     ├── Plagiarism detection (anti-copy-paste)
     ├── Toxicity filtering (content moderation)
-    └── Multi-language support (Hindi, Kannada — Phase 4)
+    └── Multi-language support (regional Indian languages — community-driven)
 ```
 
 ---
@@ -2294,7 +2294,7 @@ rideshala/                              (monorepo root)
 - [ ] QLoRA fine-tuning pipeline (after 10K+ interactions)
 - [ ] A/B testing framework (base vs fine-tuned model)
 - [ ] MLflow model versioning and tracking
-- [ ] Hindi language support
+- [ ] Multi-language support (regional Indian languages — community-driven)
 - [ ] Kubernetes manifests (K3s deployment)
 - [ ] Public API for other developers
 - [ ] Bias audit + published model cards

@@ -14,6 +14,15 @@ SECRET_KEY = os.getenv("AUTH_SECRET_KEY", "dev-secret-change-in-production")
 ALGORITHM = os.getenv("AUTH_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
+# Warn if using weak default secret in production
+if os.getenv("APP_ENV") == "production" and SECRET_KEY == "dev-secret-change-in-production":
+    import warnings
+    warnings.warn(
+        "AUTH_SECRET_KEY is using the default value in production! "
+        "Set a strong random key (32+ characters) in your environment.",
+        stacklevel=1,
+    )
+
 security = HTTPBearer(auto_error=False)
 _security_dep = Depends(security)
 

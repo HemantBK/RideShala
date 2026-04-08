@@ -4,8 +4,11 @@ Uses the LangGraph agent graph for AI-powered comparison with reasoning,
 and the finance agent for Total Cost of Ownership calculations.
 """
 
-from fastapi import APIRouter, Request
+import bleach
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
+
+from app.middleware.rate_limiter import rate_limit_check
 
 from packages.ai.agents.tools.calculators import calculate_emi, calculate_insurance, calculate_rto
 from packages.ai.agents.tools.search_specs import search_bike_specs
@@ -16,12 +19,12 @@ router = APIRouter()
 class CompareRequest(BaseModel):
     bikes: list[str] = Field(..., min_length=2, max_length=4)
     user_height_cm: int | None = Field(None, ge=100, le=220)
-    user_city: str | None = None
-    user_budget: int | None = Field(None, ge=0)
+    user_city: str | None = Field(None, max_length=100)
+    user_budget: int | None = Field(None, ge=0, le=100_000_000)
 
 
 @router.post("")
-async def compare_bikes(request: CompareRequest, req: Request):
+async def compare_bikes(request: CompareRequest, req: Request, _=Depends(rate_limit_check)):
     """AI-powered bike comparison with reasoning."""
     graph = getattr(req.app.state, "graph", None)
 
@@ -31,9 +34,10 @@ async def compare_bikes(request: CompareRequest, req: Request):
                 "messages": [
                     {
                         "role": "user",
-                        "content": f"Compare {' vs '.join(request.bikes)}"
+                        "content": "Compare the following bikes: "
+                        + ", ".join(bleach.clean(b, tags=[], strip=True)[:50] for b in request.bikes)
                         + (f" for a {request.user_height_cm}cm rider" if request.user_height_cm else "")
-                        + (f" in {request.user_city}" if request.user_city else "")
+                        + (f" in {bleach.clean(request.user_city, tags=[], strip=True)[:50]}" if request.user_city else "")
                         + (f" with budget Rs {request.user_budget}" if request.user_budget else ""),
                     }
                 ],

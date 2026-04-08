@@ -54,21 +54,34 @@ class RideShalaState(TypedDict):
 
 ## LLM Provider Routing
 
-Default: vLLM handles ALL tasks (free). Claude/Groq only activate if API keys are explicitly configured.
+The router picks the first available provider and falls back automatically on failure.
+
+### Available Providers (all free except Claude)
+
+| Provider | Model | Cost | Rate Limit | When to use |
+|----------|-------|------|-----------|-------------|
+| **vLLM** | Mistral 7B | FREE (self-hosted) | Unlimited | Have GPU |
+| **Groq** | Llama 3.3 70B | FREE | 1,000 req/day | Best quality, no GPU |
+| **Gemini** | Gemini 2.0 Flash | FREE | 1,000+ req/day | Google's model, good fallback |
+| **HuggingFace** | Llama 3.1 8B | FREE | ~100 req/hr | Backup fallback |
+| **Claude** | Sonnet | PAID (optional) | Pay-per-use | Premium reasoning |
+
+### Fallback Chain
 
 ```
 Request → LLM Router
               │
-              ├── vLLM available? ──► Use vLLM (free, self-hosted)
+              ├── Groq available? ──► Use Groq (free, fastest)
               │
-              ├── vLLM down? ──► Circuit breaker opens
-              │                    ├── Groq key set? ──► Use Groq (free tier)
-              │                    └── Claude key set? ──► Use Claude (paid)
+              ├── Groq down? ──► Circuit breaker opens
+              │                    ├── Gemini key set? ──► Use Gemini (free)
+              │                    ├── HuggingFace? ──► Use HF (free)
+              │                    └── vLLM running? ──► Use vLLM (GPU)
               │
-              └── All providers down? ──► Graceful error message
+              └── All providers down? ──► Graceful error (RS-3001)
 ```
 
-Each provider has an independent circuit breaker:
+Each provider has an independent circuit breaker (native async, no Tornado dependency):
 - Opens after 5 failures in 30 seconds
 - Half-open probe every 60 seconds
 - When open, auto-routes to next provider in chain

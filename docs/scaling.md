@@ -10,7 +10,7 @@ This document covers the future scaling roadmap. Phases 1-3 are complete — the
 | Expand bike database | High | Ongoing | Community-driven: 30 → 200+ bikes |
 | QLoRA fine-tuning | Medium | 2 weeks | Fine-tune Mistral 7B on motorcycle domain after 10K+ interactions |
 | A/B testing framework | Medium | 1 week | Traffic splitting between base and fine-tuned models |
-| Hindi language support | Medium | 2 weeks | Prompts + UI in Hindi, Hinglish query handling |
+| Multi-language support | Medium | 2 weeks | Regional Indian languages — community-driven, based on demand |
 | Kubernetes deployment | Medium | 2 weeks | K3s manifests for multi-node production |
 | Public API with key management | Medium | 1 week | API keys, usage quotas, developer portal |
 | MLflow model tracking | Low | 1 week | Experiment tracking, model versioning |
@@ -86,22 +86,29 @@ AB_TEST_CONFIG = {
 # - Token efficiency
 ```
 
-## Hindi Language Support
+## Multi-Language Support
+
+Regional language support is **community-driven**. The first language added will be whichever language has a contributor willing to translate the prompts and UI.
+
+### How it works
+- Any community member can contribute translations for their language
+- The first language to get a complete translation set goes live first
+- No language is prioritized over another — it depends on community contributions
 
 ### Prompts
-- Duplicate all 6 system prompts with Hindi versions
-- Add Hinglish detection: "yeh bike kaisi hai?" → route to Hindi prompt
-- Auto-detect language from user query using vLLM
+- Duplicate all 6 system prompts per language
+- Auto-detect language from user query using LLM
+- Mixed-language and transliteration support (e.g., "ee bike heg idhe?" or "yeh bike kaisi hai?")
 
 ### UI
 - Language toggle in Next.js header
-- Hindi translations for all UI strings
-- RTL is not needed (Hindi is LTR)
+- Translations for all UI strings (community-contributed)
+- LTR layout (all Indian languages are LTR)
 
 ### Data
-- Hindi bike names are the same (Royal Enfield = रॉयल एनफील्ड)
-- User reviews can be submitted in Hindi
-- Hindi reviews embedded separately in Qdrant (same collection, `language` payload field)
+- Bike names stay the same across languages
+- User reviews can be submitted in any language
+- Reviews embedded in Qdrant with `language` payload field for filtering
 
 ## Kubernetes Deployment
 

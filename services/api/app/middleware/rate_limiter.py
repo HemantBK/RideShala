@@ -56,9 +56,21 @@ async def rate_limit_check(request: Request) -> None:
 
         if count > limit:
             retry_after = 60 - (int(time.time()) % 60)
+            logger.warning(
+                "rate_limit_exceeded",
+                error_code="RS-6001",
+                user_id=user_id,
+                tier=tier,
+                endpoint_type=endpoint_type,
+                limit=limit,
+                count=count,
+            )
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=f"Rate limit exceeded. {limit} requests/minute for {tier} users. Retry in {retry_after}s.",
+                detail={
+                    "error_code": "RS-6001",
+                    "message": f"Rate limit exceeded. {limit} requests/minute for {tier} users. Retry in {retry_after}s.",
+                },
                 headers={"Retry-After": str(retry_after)},
             )
     except HTTPException:
