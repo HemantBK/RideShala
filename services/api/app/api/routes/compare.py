@@ -107,7 +107,11 @@ async def compare_bikes(request: CompareRequest, req: Request, _=_rate_limit):  
 @router.post("/tco")
 async def compare_tco(request: CompareRequest):
     """Total Cost of Ownership comparison."""
-    from packages.ai.agents.tools.calculators import calculate_emi, calculate_insurance, calculate_rto
+    from packages.ai.agents.tools.calculators import (
+        calculate_emi,
+        calculate_insurance,
+        calculate_rto,
+    )
     from packages.ai.agents.tools.search_specs import search_bike_specs
 
     tco_results = {}
