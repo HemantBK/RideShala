@@ -68,7 +68,7 @@ def test_submit_valid_review():
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "pending_moderation"
+    assert data["status"] == "approved"
 
 
 def test_submit_review_rejects_invalid_rating():

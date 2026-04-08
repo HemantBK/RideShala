@@ -33,5 +33,5 @@ def test_list_bikes_rejects_invalid_limit():
 
 def test_get_single_bike():
     """Single bike endpoint should return bike slug."""
-    response = client.get("/api/v1/specs/meteor-350")
+    response = client.get("/api/v1/specs/royal-enfield-meteor-350")
     assert response.status_code == 200

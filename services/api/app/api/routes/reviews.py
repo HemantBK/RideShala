@@ -123,7 +123,7 @@ async def submit_review(review: ReviewSubmission):
 
         r = aioredis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
         await r.rpush("embedding_queue", json.dumps(new_review))
-        await r.close()
+        await r.aclose()
     except Exception as e:
         logger.debug(f"Embedding queue unavailable (will embed later): {e}")
 
