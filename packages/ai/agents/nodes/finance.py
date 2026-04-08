@@ -110,6 +110,11 @@ async def finance_agent_node(state: RideShalaState) -> dict:
         else:
             result_text = str(response)
 
+        tokens = getattr(response, "usage", None)
+        token_count = 0
+        if tokens:
+            token_count = getattr(tokens, "prompt_tokens", 0) + getattr(tokens, "completion_tokens", 0)
+
         return {
             "finance_result": result_text,
             "sources": [
@@ -118,6 +123,7 @@ async def finance_agent_node(state: RideShalaState) -> dict:
                 "Government RTO rate tables",
                 f"IOCL fuel price (Rs {PETROL_PRICE_INR}/L)",
             ],
+            "total_tokens": state.get("total_tokens", 0) + token_count,
         }
 
     except Exception as e:

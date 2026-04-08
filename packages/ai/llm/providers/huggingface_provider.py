@@ -1,7 +1,10 @@
-"""Groq provider — fast inference fallback (free tier: 30 req/min).
+"""HuggingFace Inference provider — 100% free, no rate limit worries.
 
-Uses Groq's OpenAI-compatible API for fast inference on larger models
-(Llama 3.1 70B) as a fallback when vLLM is down.
+Uses HuggingFace's OpenAI-compatible router endpoint.
+Free tier: ~100 requests/hour with HF token.
+Models: Llama 3.1 8B, Mistral 7B, Qwen 2.5 72B — all open source.
+
+Get your free token: https://huggingface.co/settings/tokens
 """
 
 import os
@@ -9,15 +12,17 @@ import os
 from openai import AsyncOpenAI
 
 
-class GroqProvider:
-    """Groq API provider for fast inference fallback."""
+class HuggingFaceProvider:
+    """HuggingFace free inference via OpenAI-compatible API."""
 
     def __init__(self):
         self.client = AsyncOpenAI(
-            base_url="https://api.groq.com/openai/v1",
-            api_key=os.getenv("GROQ_API_KEY"),
+            base_url="https://router.huggingface.co/v1",
+            api_key=os.getenv("HF_TOKEN"),
         )
-        self.model_name = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        self.model_name = os.getenv(
+            "HF_MODEL", "meta-llama/Llama-3.1-8B-Instruct"
+        )
 
     async def generate(
         self,
@@ -28,7 +33,7 @@ class GroqProvider:
         max_tokens: int = 2048,
         stream: bool = False,
     ):
-        """Generate a response using Groq API."""
+        """Generate a response using HuggingFace free inference."""
         full_messages = []
         if system:
             full_messages.append({"role": "system", "content": system})

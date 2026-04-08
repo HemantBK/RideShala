@@ -36,13 +36,15 @@ dependencies = [
     # Embeddings & reranking
     "sentence-transformers>=3.3",
     # Resilience
-    "pybreaker>=1.2",
+    # pybreaker removed — uses Tornado @gen.coroutine, broken on Python 3.13+
+    # Circuit breaker is built-in at packages/ai/llm/circuit_breaker.py
     # Observability
     "structlog>=24.4",
     "prometheus-client>=0.21",
     # Security
     "bleach>=6.2",
     "pydantic>=2.10",
+    "PyJWT>=2.9",
     # HTTP client
     "httpx>=0.28",
     # Utilities
@@ -88,6 +90,16 @@ known-first-party = ["packages", "services", "app"]
 [tool.pytest.ini_options]
 testpaths = ["services/api/tests"]
 addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["services/api/app", "packages/ai"]
+branch = true
+omit = ["*/tests/*", "*/alembic/*", "*/migrations/*"]
+
+[tool.coverage.report]
+fail_under = 40
+show_missing = true
+skip_empty = true
 
 [tool.mypy]
 python_version = "3.11"

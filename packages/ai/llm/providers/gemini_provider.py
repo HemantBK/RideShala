@@ -1,7 +1,9 @@
-"""Groq provider — fast inference fallback (free tier: 30 req/min).
+"""Google Gemini provider — free tier available.
 
-Uses Groq's OpenAI-compatible API for fast inference on larger models
-(Llama 3.1 70B) as a fallback when vLLM is down.
+Uses Google's OpenAI-compatible endpoint for Gemini models.
+Free tier: Gemini 2.5 Flash (5-20 RPM, 250K TPM).
+
+Get free key: https://aistudio.google.com/apikey
 """
 
 import os
@@ -9,15 +11,15 @@ import os
 from openai import AsyncOpenAI
 
 
-class GroqProvider:
-    """Groq API provider for fast inference fallback."""
+class GeminiProvider:
+    """Google Gemini via OpenAI-compatible API."""
 
     def __init__(self):
         self.client = AsyncOpenAI(
-            base_url="https://api.groq.com/openai/v1",
-            api_key=os.getenv("GROQ_API_KEY"),
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=os.getenv("GEMINI_API_KEY"),
         )
-        self.model_name = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        self.model_name = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
     async def generate(
         self,
@@ -28,7 +30,7 @@ class GroqProvider:
         max_tokens: int = 2048,
         stream: bool = False,
     ):
-        """Generate a response using Groq API."""
+        """Generate a response using Gemini."""
         full_messages = []
         if system:
             full_messages.append({"role": "system", "content": system})

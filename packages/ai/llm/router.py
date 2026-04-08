@@ -10,7 +10,7 @@ The system works fully with just vLLM — no paid API keys needed.
 import logging
 import os
 
-import pybreaker
+from packages.ai.llm.circuit_breaker import AsyncCircuitBreaker, CircuitBreakerOpen
 
 logger = logging.getLogger(__name__)
 
@@ -33,38 +33,59 @@ class LLMRouter:
         vLLM (primary, free) -> Groq (if key set) -> Claude (if key set)
     """
 
-    # Circuit breaker per provider
+    # Circuit breaker per provider (native async, no Tornado dependency)
     BREAKERS = {
-        "vllm": pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60, name="vllm"),
-        "claude": pybreaker.CircuitBreaker(fail_max=3, reset_timeout=60, name="claude"),
-        "groq": pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60, name="groq"),
+        "vllm": AsyncCircuitBreaker(name="vllm", fail_max=5, reset_timeout=60),
+        "claude": AsyncCircuitBreaker(name="claude", fail_max=3, reset_timeout=60),
+        "groq": AsyncCircuitBreaker(name="groq", fail_max=5, reset_timeout=60),
+        "huggingface": AsyncCircuitBreaker(name="huggingface", fail_max=5, reset_timeout=60),
+        "gemini": AsyncCircuitBreaker(name="gemini", fail_max=5, reset_timeout=60),
     }
 
     def __init__(self):
         self.providers = {}
 
-        # vLLM is the ONLY required provider — everything else is optional
+        # vLLM — free, self-hosted (needs GPU)
         if os.getenv("VLLM_BASE_URL"):
             from packages.ai.llm.providers.vllm_provider import VLLMProvider
             self.providers["vllm"] = VLLMProvider()
+            logger.info("vllm_provider_enabled (free, self-hosted)")
 
-        # Optional paid providers (only loaded if API key is set)
+        # Groq — free tier, 30 req/min, no GPU needed
+        groq_key = os.getenv("GROQ_API_KEY", "").strip()
+        if groq_key and not groq_key.startswith("gsk_changeme") and not groq_key.startswith("gsk_your"):
+            from packages.ai.llm.providers.groq_provider import GroqProvider
+            self.providers["groq"] = GroqProvider()
+            logger.info("groq_provider_enabled (free tier)")
+
+        # HuggingFace — free, ~100 req/hour
+        hf_token = os.getenv("HF_TOKEN", "").strip()
+        if hf_token and not hf_token.startswith("hf_changeme"):
+            from packages.ai.llm.providers.huggingface_provider import HuggingFaceProvider
+            self.providers["huggingface"] = HuggingFaceProvider()
+            logger.info("huggingface_provider_enabled (free)")
+
+        # Gemini — free tier (Flash models)
+        gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
+        if gemini_key and not gemini_key.startswith("changeme"):
+            from packages.ai.llm.providers.gemini_provider import GeminiProvider
+            self.providers["gemini"] = GeminiProvider()
+            logger.info("gemini_provider_enabled (free tier)")
+
+        # Claude — optional paid enhancement
         anthropic_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
         if anthropic_key and not anthropic_key.startswith("sk-ant-changeme"):
             from packages.ai.llm.providers.claude_provider import ClaudeProvider
             self.providers["claude"] = ClaudeProvider()
-            logger.info("claude_provider_enabled (optional paid enhancement)")
-
-        groq_key = os.getenv("GROQ_API_KEY", "").strip()
-        if groq_key and not groq_key.startswith("gsk_changeme"):
-            from packages.ai.llm.providers.groq_provider import GroqProvider
-            self.providers["groq"] = GroqProvider()
-            logger.info("groq_provider_enabled (optional free-tier fallback)")
+            logger.info("claude_provider_enabled (optional paid)")
 
         if not self.providers:
             raise RuntimeError(
-                "No LLM providers configured. Set VLLM_BASE_URL in .env to point "
-                "to your self-hosted vLLM server. No paid API keys are required."
+                "No LLM providers configured. Set one of these in .env:\n"
+                "  - GROQ_API_KEY (free, no GPU — groq.com)\n"
+                "  - HF_TOKEN (free — huggingface.co/settings/tokens)\n"
+                "  - VLLM_BASE_URL (free, needs GPU)\n"
+                "  - ANTHROPIC_API_KEY (optional paid — claude.ai)"
             )
 
         logger.info(f"llm_router_ready providers={list(self.providers.keys())}")
@@ -94,7 +115,7 @@ class LLMRouter:
             breaker = self.BREAKERS.get(p)
             try:
                 if breaker:
-                    result = await breaker.call_async(
+                    result = await breaker.call(
                         self.providers[p].generate,
                         messages=messages,
                         system=system,
@@ -114,7 +135,7 @@ class LLMRouter:
                     )
                 return result
 
-            except pybreaker.CircuitBreakerError:
+            except CircuitBreakerOpen:
                 logger.warning(f"Circuit breaker open for {p}, trying next provider")
                 continue
             except Exception as e:
@@ -126,13 +147,18 @@ class LLMRouter:
         )
 
     def _get_fallback_chain(self, preferred: str) -> list[str]:
-        """Build fallback chain. vLLM is always first unless Claude is explicitly requested."""
+        """Build fallback chain with all available providers."""
         if preferred == "claude" and "claude" in self.providers:
-            return ["claude", "vllm", "groq"]
-        if preferred == "groq" and "groq" in self.providers:
-            return ["groq", "vllm"]
-        # Default: vLLM first (free), then optional providers
-        return ["vllm", "groq", "claude"]
+            return ["claude", "groq", "huggingface", "vllm"]
+        if preferred in self.providers:
+            chain = [preferred]
+        else:
+            chain = []
+        # Add all other providers as fallbacks
+        for p in ["vllm", "groq", "gemini", "huggingface", "claude"]:
+            if p not in chain:
+                chain.append(p)
+        return chain
 
     async def stream(self, provider: str = "vllm", **kwargs):
         """Stream a response. Convenience wrapper."""
@@ -141,12 +167,13 @@ class LLMRouter:
     async def get_provider_for_task(self, task_type: str) -> str:
         """Get the best available provider for a task type.
 
-        DEFAULT: Always returns "vllm" (free).
-        Only returns "claude" if the API key is configured AND the task
-        is complex enough to justify the cost.
+        Returns the first available provider in priority order.
         """
-        # vLLM handles everything by default — it's free
-        return "vllm"
+        priority = ["vllm", "groq", "claude"]
+        for p in priority:
+            if p in self.providers:
+                return p
+        return next(iter(self.providers))
 
     def get_status(self) -> dict:
         """Return health status of all providers."""
@@ -157,5 +184,5 @@ class LLMRouter:
                 "is_free": name == "vllm",
                 "is_optional_paid": name in ("claude", "groq"),
             }
-            for name in ["vllm", "claude", "groq"]
+            for name in ["vllm", "groq", "gemini", "huggingface", "claude"]
         }

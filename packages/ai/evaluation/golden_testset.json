@@ -1,0 +1,296 @@
+[
+  {
+    "question": "What is the seat height of the Royal Enfield Meteor 350?",
+    "expected_answer": "The seat height of the Meteor 350 is 765mm.",
+    "expected_sources": ["royalenfield.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Which bike is better for a 5'7 rider with back pain - Meteor 350 or CB350?",
+    "expected_answer": "The Meteor 350 has a lower seat height (765mm vs 800mm) and a more relaxed cruiser posture, making it more comfortable for a 5'7 rider with back pain.",
+    "expected_sources": ["royalenfield.com", "honda2wheelersindia.com"],
+    "category": "comparison"
+  },
+  {
+    "question": "What is the price of the Honda SP125?",
+    "expected_answer": "The Honda SP125 is priced at approximately Rs 90,900 ex-showroom.",
+    "expected_sources": ["honda2wheelersindia.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Best adventure bike under 3 lakh in India?",
+    "expected_answer": "The Royal Enfield Himalayan 450 (Rs 2.85L) and Triumph Scrambler 400 X (Rs 2.61L) are top adventure options under 3L. The Hero XPulse 200 4V (Rs 1.44L) is the budget pick.",
+    "expected_sources": ["royalenfield.com", "triumphind.in", "heromotocorp.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Does the KTM 390 Duke have traction control?",
+    "expected_answer": "Yes, the KTM 390 Duke has traction control and 3 riding modes.",
+    "expected_sources": ["ktmindia.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Compare Bajaj Dominar 400 vs KTM 390 Duke for highway touring",
+    "expected_answer": "The Dominar 400 has a more touring-friendly posture and lower seat. The 390 Duke has more power (45 bhp vs 40 bhp) and traction control. For pure highway touring, the Dominar is more comfortable; for sporty touring, the Duke.",
+    "expected_sources": ["bajajauto.com", "ktmindia.com"],
+    "category": "comparison"
+  },
+  {
+    "question": "Cheapest bike with dual channel ABS in India?",
+    "expected_answer": "The TVS Apache RTR 200 4V at Rs 1.47L is one of the most affordable bikes with dual-channel ABS.",
+    "expected_sources": ["tvsmotor.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What is the fuel tank capacity of the Royal Enfield Himalayan 450?",
+    "expected_answer": "The Himalayan 450 has a 17-litre fuel tank.",
+    "expected_sources": ["royalenfield.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Best commuter bike under 1 lakh?",
+    "expected_answer": "The Hero Splendor Plus (Rs 76,800) is the most popular commuter under 1L with 70 kpl claimed mileage. The Honda SP125 (Rs 90,900) offers better features if budget allows.",
+    "expected_sources": ["heromotocorp.com", "honda2wheelersindia.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Is the Yamaha R15 V4 good for daily commute in Bangalore traffic?",
+    "expected_answer": "The R15 V4's sport-forward riding posture can be tiring in heavy traffic. Its 815mm seat height and aggressive lean may cause back strain on long commutes. Consider the MT-15 V2 instead — same engine, more upright posture.",
+    "expected_sources": ["yamaha-motor-india.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Which bikes have traction control under 3 lakh?",
+    "expected_answer": "Bikes with traction control under 3L include: Honda CB350 (Rs 2.09L), RE Guerrilla 450 (Rs 2.39L), RE Himalayan 450 (Rs 2.85L), Triumph Speed 400 (Rs 2.34L), Triumph Scrambler 400X (Rs 2.61L), TVS Apache RR310 (Rs 2.75L), and Yamaha R15 V4 (Rs 1.87L).",
+    "expected_sources": ["honda2wheelersindia.com", "royalenfield.com", "triumphind.in", "tvsmotor.com", "yamaha-motor-india.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "What is the on-road price of Meteor 350 in Karnataka?",
+    "expected_answer": "The ex-showroom price is Rs 2,11,000. With Karnataka RTO at 13%, the estimated on-road price is approximately Rs 2,52,000 including insurance.",
+    "expected_sources": ["royalenfield.com", "Karnataka transport department"],
+    "category": "finance"
+  },
+  {
+    "question": "Calculate EMI for Royal Enfield Classic 350",
+    "expected_answer": "For the Classic 350 at Rs 1,99,000, the EMI at 9.5% for 36 months is approximately Rs 6,380 per month. Total payment: Rs 2,29,680. Total interest: Rs 30,680.",
+    "expected_sources": ["Standard EMI formula"],
+    "category": "finance"
+  },
+  {
+    "question": "Lightest naked bike under 2 lakh?",
+    "expected_answer": "The Yamaha MT-15 V2 at 139 kg (Rs 1.68L) is the lightest naked bike under 2L. The TVS Apache RTR 200 4V at 153 kg (Rs 1.47L) is next.",
+    "expected_sources": ["yamaha-motor-india.com", "tvsmotor.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What safety features does the Triumph Speed 400 have?",
+    "expected_answer": "The Speed 400 has dual-channel ABS, traction control, and 2 riding modes.",
+    "expected_sources": ["triumphind.in"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Best bike for a tall rider (6'2)?",
+    "expected_answer": "For a 6'2 rider, look for seat heights above 820mm: KTM 390 Adventure (855mm), RE Himalayan 450 (825mm), Triumph Scrambler 400X (835mm), Suzuki V-Strom SX 250 (835mm). Avoid low-seat cruisers like the Meteor 350 (765mm).",
+    "expected_sources": ["ktmindia.com", "royalenfield.com", "triumphind.in", "suzukimotorcycle.co.in"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Compare TVS Apache RR310 vs KTM 390 Duke",
+    "expected_answer": "The RR310 is a faired sport bike (38 bhp, Rs 2.75L) with 4 riding modes. The 390 Duke is a naked streetfighter (45 bhp, Rs 3.22L) with 3 riding modes. The Duke has more power but costs more. Both have dual-channel ABS and traction control.",
+    "expected_sources": ["tvsmotor.com", "ktmindia.com"],
+    "category": "comparison"
+  },
+  {
+    "question": "Which Royal Enfield bike has the best mileage?",
+    "expected_answer": "The Hunter 350 and Meteor 350 both claim 36 kpl, the best among RE bikes. The Classic 350 claims 35 kpl.",
+    "expected_sources": ["royalenfield.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Most powerful bike under 2.5 lakh?",
+    "expected_answer": "The Royal Enfield Guerrilla 450 (39.5 bhp, Rs 2.39L) and Triumph Speed 400 (39.5 bhp, Rs 2.34L) are the most powerful under 2.5L.",
+    "expected_sources": ["royalenfield.com", "triumphind.in"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What is the ground clearance of the Hero XPulse 200 4V?",
+    "expected_answer": "The Hero XPulse 200 4V has 220mm of ground clearance — the highest among adventure bikes in its segment.",
+    "expected_sources": ["heromotocorp.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "5-year ownership cost of Bajaj Pulsar NS200 in Bangalore",
+    "expected_answer": "Estimated 5-year TCO: Ex-showroom Rs 1,54,000 + RTO Rs 20,020 + Insurance Rs ~25,000 + Fuel Rs ~1,32,000 + Service Rs ~30,000 = approximately Rs 3,61,000 total (Rs ~6,000/month).",
+    "expected_sources": ["bajajauto.com", "Karnataka RTO rates", "IRDAI tariff", "IOCL fuel price"],
+    "category": "finance"
+  },
+  {
+    "question": "Does the Honda CB350 have traction control?",
+    "expected_answer": "Yes, the Honda CB350 has traction control (HSTC - Honda Selectable Torque Control).",
+    "expected_sources": ["honda2wheelersindia.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Best sport bike under 2 lakh for a beginner?",
+    "expected_answer": "The Yamaha R15 V4 (Rs 1.87L, 18.4 bhp) is the best beginner sport bike under 2L — lightweight (141 kg), has traction control, and the power is manageable. The TVS Apache RTR 200 4V (Rs 1.47L) is the budget option with dual ABS.",
+    "expected_sources": ["yamaha-motor-india.com", "tvsmotor.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Kawasaki Ninja 300 vs Yamaha R15 V4",
+    "expected_answer": "The Ninja 300 has a massive power advantage (39 bhp vs 18.4 bhp, twin-cylinder vs single) and a 17L tank. But it costs Rs 3.48L vs Rs 1.87L. The R15 V4 has traction control. For beginners, the R15 V4. For experienced riders wanting power, the Ninja 300.",
+    "expected_sources": ["kawasaki-india.com", "yamaha-motor-india.com"],
+    "category": "comparison"
+  },
+  {
+    "question": "Which bike has the longest range on a single tank under 3L?",
+    "expected_answer": "RE Himalayan 450: 17L tank x 30 kpl = ~510 km range. RE Meteor 350: 15L x 36 kpl = ~540 km range. Kawasaki Ninja 300: 17L x 28 kpl = ~476 km. The Meteor 350 offers the best theoretical range.",
+    "expected_sources": ["royalenfield.com", "kawasaki-india.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Which bikes under 2L do NOT have ABS at all?",
+    "expected_answer": "The Hero Splendor Plus (Rs 76,800) does not have ABS. Most bikes above Rs 1L now have at least single-channel ABS. We strongly recommend choosing a bike with ABS for your safety.",
+    "expected_sources": ["heromotocorp.com"],
+    "category": "safety"
+  },
+  {
+    "question": "Is it safe to ride the Pulsar NS200 in heavy rain?",
+    "expected_answer": "The Pulsar NS200 has only single-channel ABS (front wheel), which provides less braking safety in wet conditions compared to dual-channel ABS. Always ride with proper rain gear, reduce speed, and increase following distance. Consider upgrading to a bike with dual-channel ABS for monsoon riding.",
+    "expected_sources": ["bajajauto.com"],
+    "category": "safety"
+  },
+  {
+    "question": "Plan a ride from Bangalore to Goa on a Himalayan 450",
+    "expected_answer": "Bangalore to Goa is approximately 560 km via NH48. With the Himalayan 450's 17L tank and ~30 kpl mileage, you get ~510 km range, so plan one fuel stop around Hubli (~350 km). Estimated ride time: 9-10 hours. Check weather before departure, especially during monsoon.",
+    "expected_sources": ["OSRM routing", "royalenfield.com", "Open-Meteo weather"],
+    "category": "ride_plan"
+  },
+  {
+    "question": "How many fuel stops from Mumbai to Pune on a Yamaha FZ25?",
+    "expected_answer": "Mumbai to Pune is approximately 150 km via the expressway. The FZ25 has a 14L tank with 38 kpl claimed mileage, giving ~530 km range. No fuel stop needed — you can easily complete the journey on a single tank.",
+    "expected_sources": ["yamaha-motor-india.com", "OSRM routing"],
+    "category": "ride_plan"
+  },
+  {
+    "question": "What helmet should I wear with a motorcycle?",
+    "expected_answer": "Always wear a full-face ISI-certified helmet. Half-face and open-face helmets offer significantly less protection. Look for ISI mark (IS 4151) or ECE/DOT certification. Additionally, wear riding gloves, a jacket with armor, and proper boots.",
+    "expected_sources": ["RideShala safety guidelines"],
+    "category": "safety"
+  },
+  {
+    "question": "Best bike for a couple (rider + pillion) under 2.5L?",
+    "expected_answer": "For comfortable two-up riding, consider the RE Meteor 350 (Rs 2.11L) — low seat, wide seat, relaxed posture. The Honda CB350 (Rs 2.09L) is also excellent with its grab rail and wider rear seat. Avoid sport bikes like R15 for pillion comfort.",
+    "expected_sources": ["royalenfield.com", "honda2wheelersindia.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What is the insurance cost for a new KTM 250 Duke?",
+    "expected_answer": "Estimated first-year comprehensive insurance for the KTM 250 Duke (Rs 2,44,000): third-party premium Rs 1,366 (IRDAI tariff for 150-350cc) + OD premium ~Rs 6,832 = approximately Rs 8,198 total.",
+    "expected_sources": ["IRDAI published tariff rates", "ktmindia.com"],
+    "category": "finance"
+  },
+  {
+    "question": "Liquid cooled vs air cooled engine — which is better for Bangalore traffic?",
+    "expected_answer": "Liquid cooled engines handle Bangalore's stop-and-go traffic better — they maintain consistent temperatures. Air cooled engines can overheat in heavy jams. However, liquid cooled bikes cost more to service. For heavy city commute, liquid cooling is recommended. For light commute, air cooling is fine and cheaper to maintain.",
+    "expected_sources": ["General engineering principles"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What is the resale value of a 3-year-old Meteor 350?",
+    "expected_answer": "Based on typical depreciation, a 3-year-old Meteor 350 (original price Rs 2,11,000) would retain approximately 55-60% value, estimated at Rs 1,16,000-1,27,000. Actual value depends on condition, kilometers, service history, and local market.",
+    "expected_sources": ["Estimated depreciation curve"],
+    "category": "finance"
+  },
+  {
+    "question": "Compare riding modes on KTM 390 Duke vs TVS Apache RR310",
+    "expected_answer": "KTM 390 Duke has 3 riding modes. TVS Apache RR310 has 4 riding modes (Rain, Street, Sport, Track). The RR310 offers more granular control, with Track mode being specifically designed for circuit use.",
+    "expected_sources": ["ktmindia.com", "tvsmotor.com"],
+    "category": "comparison"
+  },
+  {
+    "question": "Which bike is the most fuel efficient in our database?",
+    "expected_answer": "The Hero Splendor Plus claims 70 kpl — the highest mileage in our database. The Honda SP125 claims 55 kpl. Among 150cc+ bikes, the Yamaha MT-15 V2 claims 42 kpl.",
+    "expected_sources": ["heromotocorp.com", "honda2wheelersindia.com", "yamaha-motor-india.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "How much does it cost to service a Dominar 400 at a dealer?",
+    "expected_answer": "Based on industry averages, a regular service for the Dominar 400 costs approximately Rs 2,500-4,000 at an authorized dealer. Major services can be Rs 5,000-8,000. We'll have exact community-reported data once riders contribute their service logs on RideShala.",
+    "expected_sources": ["Industry average estimates", "RideShala service logs (community data pending)"],
+    "category": "finance"
+  },
+  {
+    "question": "Best first bike for an 18-year-old in India?",
+    "expected_answer": "For a first-time 18-year-old rider: Honda SP125 (Rs 90,900) for budget commuting, Yamaha MT-15 V2 (Rs 1.68L) for something sportier, or RE Hunter 350 (Rs 1.62L) for style. Prioritize: lightweight, ABS, manageable power. Avoid 400cc+ bikes until experienced. Always wear full gear.",
+    "expected_sources": ["honda2wheelersindia.com", "yamaha-motor-india.com", "royalenfield.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What is the weight difference between Guerrilla 450 and Speed 400?",
+    "expected_answer": "The RE Guerrilla 450 weighs 185 kg. The Triumph Speed 400 weighs 170 kg. Difference: 15 kg. The Speed 400 is lighter, which makes it easier to handle in city traffic and low-speed maneuvers.",
+    "expected_sources": ["royalenfield.com", "triumphind.in"],
+    "category": "comparison"
+  },
+  {
+    "question": "Total cost of owning a Honda CB350 for 3 years in Mumbai?",
+    "expected_answer": "Estimated 3-year TCO in Maharashtra: Ex-showroom Rs 2,09,000 + RTO (12%) Rs 25,080 + Insurance ~Rs 20,000 + Fuel (30km/day x 300 days x 3 yrs / 35 kpl x Rs 103) ~Rs 79,000 + Service ~Rs 18,000 = approximately Rs 3,51,000 (Rs ~9,750/month).",
+    "expected_sources": ["honda2wheelersindia.com", "Maharashtra RTO rates", "IRDAI tariff", "IOCL fuel price"],
+    "category": "finance"
+  },
+  {
+    "question": "Which adventure bikes can handle off-road trails?",
+    "expected_answer": "Bikes with high ground clearance for off-road: Hero XPulse 200 4V (220mm, best budget off-roader), RE Himalayan 450 (230mm, best all-rounder), Triumph Scrambler 400X (200mm), KTM 390 Adventure (200mm), Suzuki V-Strom SX 250 (205mm). The XPulse and Himalayan are the most off-road capable.",
+    "expected_sources": ["heromotocorp.com", "royalenfield.com", "triumphind.in", "ktmindia.com", "suzukimotorcycle.co.in"],
+    "category": "recommendation"
+  },
+  {
+    "question": "Is the Jawa 42 Bobber comfortable for long rides?",
+    "expected_answer": "The Jawa 42 Bobber has a low 765mm seat height which is great for shorter riders. However, the forward-set footpegs and bobber riding position can cause leg cramps on rides over 200 km. For serious touring, the Meteor 350 or CB350 with more upright posture is better.",
+    "expected_sources": ["jawamotorcycles.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "How many cylinders does the Kawasaki Ninja 300 have?",
+    "expected_answer": "The Kawasaki Ninja 300 has a 2-cylinder (parallel twin) engine — the only twin-cylinder bike under 3.5L in our database. All other bikes in this price range are single-cylinder.",
+    "expected_sources": ["kawasaki-india.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "What cooling system does the Bajaj Pulsar N250 use?",
+    "expected_answer": "The Bajaj Pulsar N250 uses oil cooling. It's a good middle ground between air cooling (cheapest, but overheats in traffic) and liquid cooling (best performance, but expensive to maintain).",
+    "expected_sources": ["bajajauto.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Can you suggest a bike for both city and highway under 2L?",
+    "expected_answer": "For city + highway versatility under 2L: Bajaj Pulsar NS200 (Rs 1.54L) — liquid cooled, nimble in traffic, 136 kmph top speed. TVS Apache RTR 200 4V (Rs 1.47L) — dual ABS, 2 riding modes. RE Hunter 350 (Rs 1.62L) — most comfortable, but slower. The NS200 is the best all-rounder for mixed use.",
+    "expected_sources": ["bajajauto.com", "tvsmotor.com", "royalenfield.com"],
+    "category": "recommendation"
+  },
+  {
+    "question": "What are the riding modes on the RE Himalayan 450?",
+    "expected_answer": "The RE Himalayan 450 has 3 riding modes. It also features traction control and dual-channel ABS — making it one of the most electronically advanced REs.",
+    "expected_sources": ["royalenfield.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "Compare all cruiser bikes in the database",
+    "expected_answer": "Cruisers in our database: RE Meteor 350 (349cc, Rs 2.11L, 765mm seat), RE Classic 350 (349cc, Rs 1.99L, 790mm seat), Honda CB350 (348cc, Rs 2.09L, 800mm seat), Jawa 42 Bobber (294cc, Rs 1.98L, 765mm seat). The Meteor 350 offers the best comfort, the Classic 350 is cheapest, the CB350 has traction control.",
+    "expected_sources": ["royalenfield.com", "honda2wheelersindia.com", "jawamotorcycles.com"],
+    "category": "comparison"
+  },
+  {
+    "question": "Which bike has the highest top speed under 3 lakh?",
+    "expected_answer": "The TVS Apache RR310 has the highest top speed at 160 kmph (Rs 2.75L). The RE Guerrilla 450 and Triumph Speed 400 both reach 150/148 kmph. Among budget options, the KTM 250 Duke reaches 139 kmph.",
+    "expected_sources": ["tvsmotor.com", "royalenfield.com", "triumphind.in", "ktmindia.com"],
+    "category": "spec_lookup"
+  },
+  {
+    "question": "I'm 5'2 and female, which bike should I buy?",
+    "expected_answer": "For a 5'2 rider, seat height is critical. Best options: RE Meteor 350 (765mm seat, lowest), Jawa 42 Bobber (765mm), Honda SP125 (790mm, lightweight at 118 kg). Avoid tall adventure bikes like Himalayan (825mm) or XPulse (823mm). The Meteor 350 is the most confidence-inspiring — low seat, low center of gravity, smooth power delivery.",
+    "expected_sources": ["royalenfield.com", "jawamotorcycles.com", "honda2wheelersindia.com"],
+    "category": "recommendation"
+  }
+]

@@ -210,3 +210,8 @@ $RECYCLE.BIN/
 *.tar.gz
 *.zip
 !data/seeds/*.json
+data/reviews.json
+data/mileage_logs.json
+data/service_logs.json
+data/contributions.json
+data/feedback.json

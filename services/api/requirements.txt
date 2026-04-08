@@ -32,19 +32,21 @@ sentence-transformers==3.3.*
 # RAG evaluation
 ragas==0.2.*
 
-# Resilience
-pybreaker==1.2.*
+# Resilience (circuit breaker is built-in at packages/ai/llm/circuit_breaker.py)
+# No external dependency needed — pybreaker uses Tornado which breaks on Python 3.13+
 
 # Observability
 structlog==24.4.*
 prometheus-client==0.21.*
-opentelemetry-api==1.28.*
-opentelemetry-sdk==1.28.*
-opentelemetry-instrumentation-fastapi==0.49.*
+opentelemetry-api>=1.28
+opentelemetry-sdk>=1.28
+opentelemetry-instrumentation-fastapi>=0.49b0
 
 # Security
 bleach==6.2.*
 pydantic==2.10.*
+pydantic-settings==2.7.*
+PyJWT==2.9.*
 
 # HTTP client
 httpx==0.28.*

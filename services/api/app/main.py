@@ -2,6 +2,16 @@
 
 import os
 import time
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env from project root (works whether running from services/api or project root)
+_env_path = Path(__file__).resolve().parents[3] / ".env"
+if _env_path.exists():
+    load_dotenv(_env_path)
+else:
+    load_dotenv()  # Try current directory
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
@@ -11,7 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Histogram, make_asgi_app
 
-from app.api.routes import chat, compare, health, reviews, specs
+from app.api.routes import chat, compare, contributions, feedback, health, reviews, specs, tracking
 
 logger = structlog.get_logger()
 
@@ -131,6 +141,9 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(specs.router, prefix="/api/v1/specs", tags=["specs"])
 app.include_router(compare.router, prefix="/api/v1/compare", tags=["compare"])
 app.include_router(reviews.router, prefix="/api/v1/reviews", tags=["reviews"])
+app.include_router(tracking.router, prefix="/api/v1/tracking", tags=["tracking"])
+app.include_router(contributions.router, prefix="/api/v1/contributions", tags=["contributions"])
+app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["feedback"])
 
 
 # ─── Observability Middleware ───────────────────────────

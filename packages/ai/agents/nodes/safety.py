@@ -67,9 +67,15 @@ async def safety_agent_node(state: RideShalaState) -> dict:
             "- Never ride above the speed limit or under the influence"
         )
 
+        tokens = getattr(response, "usage", None)
+        token_count = 0
+        if tokens:
+            token_count = getattr(tokens, "prompt_tokens", 0) + getattr(tokens, "completion_tokens", 0)
+
         return {
             "safety_result": result_text + safety_footer,
             "sources": ["OEM safety specifications", "RideShala user safety reports"],
+            "total_tokens": state.get("total_tokens", 0) + token_count,
         }
 
     except Exception as e:
