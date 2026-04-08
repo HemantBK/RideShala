@@ -6,19 +6,18 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import uuid4
 
-from dotenv import load_dotenv
-
-# Load .env from project root before any other imports read env vars
-_env_path = Path(__file__).resolve().parents[3] / ".env"
-load_dotenv(_env_path if _env_path.exists() else None)
-
 import structlog
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Histogram, make_asgi_app
 
 from app.api.routes import chat, compare, contributions, feedback, health, reviews, specs, tracking
+
+# Load .env from project root
+_env_path = Path(__file__).resolve().parents[3] / ".env"
+load_dotenv(_env_path if _env_path.exists() else None)
 
 logger = structlog.get_logger()
 

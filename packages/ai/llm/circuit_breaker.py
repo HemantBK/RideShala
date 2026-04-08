@@ -49,7 +49,7 @@ class AsyncCircuitBreaker:
             self.state = "closed"
             return result
 
-        except Exception as e:
+        except Exception:
             self.fail_count += 1
             self.last_failure_time = now
 
