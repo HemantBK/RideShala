@@ -30,7 +30,7 @@ langchain-core==0.3.*
 sentence-transformers==3.3.*
 
 # RAG evaluation
-ragas==0.2.*
+ragas==0.4.*
 
 # Resilience (circuit breaker is built-in at packages/ai/llm/circuit_breaker.py)
 # No external dependency needed — pybreaker uses Tornado which breaks on Python 3.13+
