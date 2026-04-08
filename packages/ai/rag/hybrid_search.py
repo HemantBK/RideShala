@@ -4,11 +4,10 @@ Combines Qdrant (dense/semantic) and Meilisearch (sparse/BM25) search
 results using Reciprocal Rank Fusion, then re-ranks with a cross-encoder
 for maximum retrieval quality.
 
-Architecture:
-    Query -> [Dense Search (Qdrant)] + [Sparse Search (Meilisearch)]
-          -> Reciprocal Rank Fusion (k=60)
-          -> Cross-Encoder Re-ranking (ms-marco-MiniLM-L-6-v2)
-          -> Top-K results with source citations
+The cross-encoder (sentence-transformers) is OPTIONAL:
+  - If installed → full reranking for best quality
+  - If not installed → skips reranking, uses RRF scores only
+  - Install via: pip install -e ".[ml]"
 """
 
 import asyncio
@@ -17,9 +16,17 @@ import os
 
 from openai import AsyncOpenAI
 from qdrant_client import AsyncQdrantClient
-from sentence_transformers import CrossEncoder
 
 logger = logging.getLogger(__name__)
+
+# Optional: cross-encoder for reranking (only available with [ml] extra)
+try:
+    from sentence_transformers import CrossEncoder
+
+    _RERANKER_AVAILABLE = True
+except ImportError:
+    _RERANKER_AVAILABLE = False
+    logger.info("sentence-transformers not installed — reranking disabled. Install via: pip install -e '.[ml]'")
 
 
 class HybridRAG:
@@ -35,7 +42,7 @@ class HybridRAG:
             base_url=os.getenv("EMBEDDING_BASE_URL", "http://localhost:8001/v1"),
             api_key="dummy",
         )
-        self.reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+        self.reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2") if _RERANKER_AVAILABLE else None
         self.meili_url = os.getenv("MEILI_URL", "http://localhost:7700")
         self.meili_key = os.getenv("MEILI_MASTER_KEY", "")
         self.embedding_model = os.getenv("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
@@ -47,17 +54,7 @@ class HybridRAG:
         aspect: str | None = None,
         top_k: int = 10,
     ) -> list[dict]:
-        """Search user reviews using hybrid dense + sparse retrieval.
-
-        Args:
-            query: Natural language search query.
-            bike_model: Filter by bike model (optional).
-            aspect: Filter by review aspect — comfort, mileage, etc. (optional).
-            top_k: Number of results to return.
-
-        Returns:
-            List of search results with text, score, source citation, and metadata.
-        """
+        """Search user reviews using hybrid dense + sparse retrieval."""
         # 1. Run dense and sparse search in parallel
         dense_task = self._dense_search(query, bike_model, aspect, top_k=20)
         sparse_task = self._sparse_search(query, bike_model, top_k=20)
@@ -69,36 +66,39 @@ class HybridRAG:
         if not fused:
             return []
 
-        # 3. Re-rank with cross-encoder
-        pairs = [(query, doc["text"]) for doc in fused]
-        scores = self.reranker.predict(pairs)
-        reranked = sorted(zip(fused, scores, strict=False), key=lambda x: x[1], reverse=True)
+        # 3. Re-rank with cross-encoder (if available)
+        if self.reranker:
+            pairs = [(query, doc["text"]) for doc in fused]
+            scores = self.reranker.predict(pairs)
+            reranked = sorted(zip(fused, scores, strict=False), key=lambda x: x[1], reverse=True)
+            final = [(doc, float(score)) for doc, score in reranked[:top_k]]
+        else:
+            # No reranker — use RRF scores directly
+            final = [(doc, doc.get("score", 0.0)) for doc in fused[:top_k]]
 
         # 4. Return top-k with source citations
         return [
             {
                 "text": doc["text"],
-                "score": float(score),
+                "score": score,
                 "source": f"User review on RideShala ({doc.get('date', 'unknown date')})",
                 "bike_model": doc.get("bike_model", ""),
                 "aspect": doc.get("aspect", ""),
                 "verified_owner": doc.get("verified_owner", False),
             }
-            for doc, score in reranked[:top_k]
+            for doc, score in final
         ]
 
     async def _dense_search(
         self, query: str, bike_model: str | None, aspect: str | None, top_k: int
     ) -> list[dict]:
         """Semantic search using Qdrant vector similarity."""
-        # Generate query embedding via vLLM embedding server
         embedding_response = await self.embedder.embeddings.create(
             model=self.embedding_model,
             input=[query],
         )
         query_vector = embedding_response.data[0].embedding
 
-        # Build Qdrant filter
         must_conditions = []
         if bike_model:
             must_conditions.append({"key": "bike_model", "match": {"value": bike_model}})
@@ -107,7 +107,6 @@ class HybridRAG:
 
         query_filter = {"must": must_conditions} if must_conditions else None
 
-        # Search Qdrant
         results = await self.qdrant.search(
             collection_name="user_reviews",
             query_vector=query_vector,
@@ -155,7 +154,7 @@ class HybridRAG:
             {
                 "id": str(hit.get("id", "")),
                 "text": hit.get("text", ""),
-                "score": 1.0 / (i + 1),  # BM25 rank-based score
+                "score": 1.0 / (i + 1),
                 "bike_model": hit.get("bike_model", ""),
                 "aspect": hit.get("aspect", ""),
                 "date": hit.get("date", ""),
@@ -165,11 +164,7 @@ class HybridRAG:
         ]
 
     def _rrf_merge(self, dense: list[dict], sparse: list[dict]) -> list[dict]:
-        """Merge two ranked lists using Reciprocal Rank Fusion.
-
-        RRF score = sum(1 / (k + rank)) across all lists where the doc appears.
-        This gives a balanced combination regardless of score scale differences.
-        """
+        """Merge two ranked lists using Reciprocal Rank Fusion."""
         scores: dict[str, float] = {}
         docs: dict[str, dict] = {}
 
@@ -184,6 +179,5 @@ class HybridRAG:
             if doc_id not in docs:
                 docs[doc_id] = doc
 
-        # Sort by fused score descending
         ranked_ids = sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
         return [docs[doc_id] for doc_id in ranked_ids if doc_id in docs]

@@ -13,6 +13,7 @@ authors = [
     {name = "RideShala Contributors"},
 ]
 
+# Core dependencies — what EVERY environment needs (API server, no heavy ML)
 dependencies = [
     # Web framework
     "fastapi>=0.115",
@@ -27,23 +28,22 @@ dependencies = [
     "redis[hiredis]>=5.2",
     # Search
     "meilisearch>=0.31",
-    # LLM providers
+    # LLM providers (API clients only — lightweight, no models downloaded)
     "openai>=1.60",
     "anthropic>=0.40",
     # AI orchestration
     "langgraph>=0.2",
     "langchain-core>=0.3",
-    # Embeddings & reranking
-    "sentence-transformers>=3.3",
-    # Resilience
-    # pybreaker removed — uses Tornado @gen.coroutine, broken on Python 3.13+
-    # Circuit breaker is built-in at packages/ai/llm/circuit_breaker.py
     # Observability
     "structlog>=24.4",
     "prometheus-client>=0.21",
+    "opentelemetry-api>=1.28",
+    "opentelemetry-sdk>=1.28",
+    "opentelemetry-instrumentation-fastapi>=0.49b0",
     # Security
     "bleach>=6.2",
     "pydantic>=2.10",
+    "pydantic-settings>=2.7",
     "PyJWT>=2.9",
     # HTTP client
     "httpx>=0.28",
@@ -52,6 +52,20 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Local ML — install on GPU machines for local embedding/reranking
+ml = [
+    "sentence-transformers>=3.3",
+]
+# Evaluation — install when running RAGAS quality checks
+eval = [
+    "ragas>=0.2",
+]
+# GPU serving — install on machines with NVIDIA GPU
+gpu = [
+    "vllm>=0.6",
+    "sentence-transformers>=3.3",
+]
+# Development — install for testing, linting, type checking
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
@@ -59,21 +73,13 @@ dev = [
     "ruff>=0.8",
     "mypy>=1.13",
     "pip-audit>=2.7",
-    "httpx>=0.28",  # for TestClient
-]
-eval = [
-    "ragas>=0.2",
-]
-gpu = [
-    # vLLM is installed separately on GPU machines
-    # "vllm>=0.6",
+    "httpx>=0.28",
 ]
 
 [tool.setuptools.packages.find]
 include = ["packages*", "services*"]
 
 [tool.setuptools.package-dir]
-# Allow `from packages.ai...` and `from services.api...` imports
 "" = "."
 
 [tool.ruff]
@@ -82,7 +88,7 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
-ignore = ["E501"]  # line length handled by formatter
+ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["packages", "services", "app"]
@@ -105,4 +111,4 @@ skip_empty = true
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = false  # Relaxed for MVP
+disallow_untyped_defs = false

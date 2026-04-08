@@ -57,7 +57,23 @@ source .venv/bin/activate     # Linux/Mac
 # .venv\Scripts\activate      # Windows
 
 pip install -r requirements.txt
+
+# Optional: add local ML capabilities (needs GPU or lots of RAM)
+pip install -e ".[ml]"     # sentence-transformers for reranking
+pip install -e ".[eval]"   # RAGAS for evaluation
+pip install -e ".[gpu]"    # vLLM for self-hosted LLM serving
+pip install -e ".[dev]"    # pytest, ruff, mypy for development
 ```
+
+**Dependency strategy:**
+- `requirements.txt` → Core API server deps only (fast install, no torch/GPU packages)
+- `pyproject.toml [ml]` → Adds sentence-transformers for local embedding/reranking
+- `pyproject.toml [gpu]` → Adds vLLM for self-hosted LLM serving
+- `pyproject.toml [eval]` → Adds RAGAS for RAG quality evaluation
+- `pyproject.toml [dev]` → Adds testing and linting tools
+
+Cloud deploys (Render/Railway) use `requirements.txt` only — installs in 30 seconds.
+GPU machines install extras as needed — `pip install -e ".[gpu,ml]"`.
 
 Start required services (PostgreSQL, Redis, etc.) manually or via Docker:
 
