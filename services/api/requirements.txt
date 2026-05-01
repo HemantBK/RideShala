@@ -34,7 +34,7 @@ meilisearch>=0.31
 
 # LLM providers (API clients — no models, no torch)
 openai>=1.60
-anthropic>=0.40
+anthropic>=0.97.0
 
 # AI orchestration
 langgraph>=0.2
