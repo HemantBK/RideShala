@@ -50,7 +50,7 @@ opentelemetry-instrumentation-fastapi>=0.49b0
 # Security
 bleach>=6.2
 pydantic>=2.10
-pydantic-settings>=2.7
+pydantic-settings>=2.14.0
 PyJWT>=2.9
 
 # HTTP client
